@@ -5,7 +5,7 @@ require 'time'
 require 'builder'
 require 'rdiscount'
 
-PUBLIC = '_site'
+PUBLIC = '.'
 SOURCE = 'source'
 
 directory PUBLIC
@@ -232,7 +232,13 @@ ARCHIVE.each do |year, months|
   SITEMAP["/#{year}"] = 0.5
 end
 
-task :default => [:build]
+task :default => :build
+
+desc "Build the entire site in the master branch"
+task :pages do
+  sh "git checkout master"
+  Rake::Task[:build].invoke
+end
 
 desc "Build the entire site"
 task :build => [:posts, :tags, :archives, :index, :about, :not_found, :feed, :sitemap, :assets]
@@ -293,7 +299,8 @@ end
 desc "Remove all generated files"
 task :clean do
   Dir[File.join(PUBLIC, '*')].each do |path|
-    rm_rf path
+    base = File.basename(path)
+    rm_rf path unless base == "Rakefile" || base == "source"
   end
 end
 
