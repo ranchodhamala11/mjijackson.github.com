@@ -6,7 +6,7 @@ require 'builder'
 require 'rdiscount'
 
 PUBLIC = 'public'
-SOURCE = 'source'
+SOURCE = '.'
 
 directory PUBLIC
 
