@@ -1,12 +1,12 @@
 xml.instruct! :xml, :version => '1.0', :encoding => "UTF-8"
 xml.feed :xmlns => "http://www.w3.org/2005/Atom", :'xml:base' => "http://mjijackson.com/", :'xml:lang' => "en-us" do
   xml.title "mjijackson.com"
-  xml.subtitle "Web development and design on the Mac, by Michael J. I. Jackson"
+  xml.subtitle "Web development and design on the Mac, by Michael Jackson"
   xml.link :rel => "self", :type => "application/atom+xml", :href => "http://mjijackson.com/index.xml"
   xml.link :rel => "alternate", :type => "text/html", :href => "http://mjijackson.com/"
   xml.id "http://mjijackson.com/"
   xml.updated posts[0].published.xmlschema
-  xml.rights "Copyright © 2008-#{Time.now.year}, Michael J. I. Jackson"
+  xml.rights "Copyright © 2008-#{Time.now.year}, Michael Jackson"
 
   posts.each do |post|
     xml.entry do
