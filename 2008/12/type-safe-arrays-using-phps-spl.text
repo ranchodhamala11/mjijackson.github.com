@@ -1,0 +1,257 @@
+---
+title: Type-safe Arrays Using PHP's SPL
+author: Michael J. I. Jackson
+published: 2008-12-08 13:56
+updated: 2008-12-08 20:56
+tags: [php, spl]
+---
+
+For a recent project of mine, I needed to create a type-safe collection of objects in PHP. However, normal PHP [arrays][a] don't support this kind of behavior. I could create a class to do the job, but I'll have to do a little work to make it function like a real array.
+
+[a]: http://php.net/array
+
+My first try looked something like this:
+
+    class Collection
+    {
+
+        private $type;
+        private $objects = array();
+
+        public function __construct($type)
+        {
+            $this->type = $type;
+        }
+
+        public function add($obj)
+        {
+            if (!($obj instanceof $this->type)) {
+                throw new Exception('Wrong type!');
+            }
+            $this->objects[] = $obj;
+        }
+
+        public function get($offset)
+        {
+            return isset($this->objects[$offset])
+                ? $this->objects[$offset]
+                : null;
+        }
+
+    }
+
+This class is obviously stripped of some of the nice properties of arrays. However, we do have the ability to set a class `$type` variable that can be used to check the types of new objects, and that's the most important thing that I need to accomplish with my collection.
+
+    $collection = new Collection('MyClass');
+    $collection->add('string'); // Exception!
+
+Clunky Access
+-------------
+
+We could continue with the above class and add `unset`, `count`, and `remove` methods, but then we'd be dealing with this clunky syntax:
+
+    $mc = new MyClass();
+    $collection->add($mc);
+    $collection->get(0); // $mc
+
+I'd like something more convenient, like the array access operators that are so familiar:
+
+    $collection[] = $mc;
+
+I'd also like to be able to use this class in a `foreach` loop. In order to achieve these objectives, we'll need some more powerful tools.
+
+Borrowing a Wheel
+-----------------
+
+If you haven't yet upgraded to PHP 5, you need to. Once you do, you'll be able to take advantage of the [Standard PHP Library][spl] (SPL). From the SPL docs:
+
+[spl]: http://www.php.net/~helly/php/ext/spl/
+
+> SPL is a collection of interfaces and classes that are meant to solve standard
+> problems and implements some efficient data access interfaces and classes.
+
+These interfaces let you supercharge your classes with some very nice properties, as we shall see.
+
+Array-like Access
+-----------------
+
+Using SPL, we can give array-like access operators to any class we create. In order to accomplish this, we'll need to get rid of our old methods and implement the `ArrayAccess` [interface][aa] instead.
+
+[aa]: http://www.php.net/~helly/php/ext/spl/interfaceArrayAccess.html
+
+    class Collection implements ArrayAccess
+    {
+
+        private $type;
+        private $objects = array();
+
+        public function __construct($type)
+        {
+            $this->type = $type;
+        }
+
+        public function offsetExists($offset)
+        {
+            return isset($this->objects[$offset]);
+        }
+
+        public function offsetGet($offset)
+        {
+            return $this->offsetExists($offset)
+                ? $this->objects[$offset]
+                : null;
+        }
+
+        public function offsetSet($offset, $value)
+        {
+            if (!($value instanceof $this->type)) {
+                throw new Exception('Wrong type!');
+            }
+            if (is_null($offset)) {
+                $offset = count($this->objects);
+            }
+            $this->objects[$offset] = $value;
+        }
+
+        public function offsetUnset($offset)
+        {
+            if (is_int($offset)) {
+                array_splice($this->objects, $offset, 1);
+            } else {
+                unset($this->objects[$offset]);
+            }
+        }
+
+    }
+
+The methods defined in `ArrayAccess` define what happens to the object when the array access operators are used. Most of the method names are self-explanatory. One trick to remember here is that when no array index is passed to `offsetSet`, you must set the index manually:
+
+    if (is_null($offset)) {
+         $offset = count($this->objects);
+    }
+
+Now adding objects is quick and simple:
+
+    $collection[] = $mc;
+
+Another trick to remember is that when coding `offsetUnset`, you need to differentiate between numerical and string keys. If the key is an integer, you really should use [array_splice][as] instead of [unset][un] because this will re-index all numerical keys in the array, just as in a normal PHP array.
+
+[as]: http://php.net/array_splice
+[un]: http://php.net/unset
+
+    public function offsetUnset($offset)
+    {
+        if (is_int($offset)) {
+            array_splice($this->objects, $offset, 1);
+        } else {
+            unset($this->objects[$offset]);
+        }
+    }
+
+Counting the Collection
+-----------------------
+
+A nice method for arrays is the [count][co] method. Luckily for us, implementing the `Countable` [interface][ctbl] is a trivial task:
+
+[co]: http://php.net/count
+[ctbl]: http://www.php.net/~helly/php/ext/spl/interfaceCountable.html
+
+    class Collection implements Countable
+    {
+
+        // ...
+
+        public function count()
+        {
+            return count($this->objects);
+        }
+
+    }
+
+Now counting our collection is as simple as calling `count`:
+
+    echo count($collection); // 1
+
+Traversability
+--------------
+
+What good is a collection without the ability to use it in a loop? Of course, you could implement a C-style loop with the methods we have now:
+
+    for ($i = 0; $i &lt; count($collection); $i++) {
+        echo $collection[$i];
+    }
+
+However, PHP gives us a nice [foreach][fe] construct for this sort of thing. The PHP manual says that `foreach` expects an array or an object (in PHP 5). If passed an object, `foreach` will iterate over the public properties of that object. But we don't have any public properties!
+
+[fe]: http://php.net/foreach
+
+This is where we reach for another interface from SPL's bag of tricks. Implementing the `Iterator` [interface][ii] will give us just what we need. When a class implements `Iterator` it defines a set of methods that tell PHP how to use the object in iteration. The methods are fairly trivial to implement, as you can see in the following example.
+
+[ii]: http://www.php.net/~helly/php/ext/spl/interfaceIterator.html
+
+    class Collection implements Iterator
+    {
+
+        // ...
+
+        private $key;
+
+        public function current()
+        {
+            return $this->offsetGet($this->key);
+        }
+
+        public function key()
+        {
+            return $this->key;
+        }
+
+        public function next()
+        {
+            $next = $this->current();
+            if ($next) {
+                $this->key++;
+            }
+            return $next;
+        }
+
+        public function rewind()
+        {
+            $this->key = 0;
+        }
+
+        public function valid()
+        {
+            return !is_null($this->current());
+        }
+
+    }
+
+The names of these methods should give you a clue as to what they are supposed to do. Most of them deal with manipulating an internal `$key` variable that behaves like an array's internal pointer. Now the collection really behaves like an array!
+
+    class Person
+    {
+
+        private $name;
+
+        public function __construct($name)
+        {
+            $this->name = $name;
+        }
+
+        public function sayHi()
+        {
+            echo 'Hi! My name is ' . $this->name;
+        }
+
+    }
+
+    $collection = new Collection('Person');
+
+    $collection[] = new Person('Joe');
+    $collection[] = new Person('Mary');
+    $collection[] = new Person('Michael');
+
+    foreach ($collection as $person) {
+        $person->sayHi();
+    }

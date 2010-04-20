@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>mjijackson &raquo; How to install Nginx on Mac OSX 10.5 using MacPorts</title>
+<meta name="description" content="Web development and design on the Mac, by Michael J. I. Jackson">
+<meta name="keywords" content="Ruby, JavaScript, PHP, HTML, CSS, web, web development, web design, Mac">
+<meta name="viewport" content="width=800">
+<link rel="alternate" type="application/atom+xml" href="/index.xml">
+<link rel="stylesheet" type="text/css" media="all" href="/css/reset.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/style.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/pre.css">
+</head>
+
+<body>
+
+<div id="wrapper">
+    <ul id="nav">
+        
+        <li class="nav-title"><a class="selected" href="/">MJIJACKSON</a></li>
+        <li class="nav-feed"><a href="/index.xml" title="Subscribe to the feed">FEED</a></li>
+        <li class="nav-code"><a href="http://github.com/mjijackson">CODE</a></li>
+        <li class="nav-about"><a href="/about">ABOUT</a></li>
+    </ul>
+    <div id="body">
+    <div class="post">
+    <div class="post-meta">
+        <h2>How to install Nginx on Mac OSX 10.5 using MacPorts</h2>
+        <div class="post-date">Thursday, 09 Jul 2009</div>
+        <div class="post-tags">
+        <a title="All posts tagged nginx" href="/tag/nginx">#nginx</a> <a title="All posts tagged macports" href="/tag/macports">#macports</a> <a title="All posts tagged osx" href="/tag/osx">#osx</a>
+        </div>
+    </div>
+    <div class="post-body">
+    <p>In this short tutorial I document how I installed and configured <a href="http://wiki.nginx.org/">Nginx</a> on my MacBook running Mac OSX Leopard. Of course, I can&rsquo;t possibly guarantee that the exact same set of steps will work for you, but it may help you troubleshoot any problems that you might have as you get started with this fantastic little piece of software.</p>
+
+<p>If you haven&rsquo;t yet discovered <a href="http://wiki.nginx.org/">Nginx</a> you&rsquo;re in for a treat. The benefits of using a web server like Nginx over its competitors have already been thoroughly covered <a href="http://www.linuxjournal.com/article/10108">elsewhere</a>, so I won&rsquo;t really address that topic here. However I will say that I&rsquo;ve been using the software for about 6 months now and it&rsquo;s been a real pleasure to work with. It&rsquo;s extremely fast, dependable, and easy to configure. Previous to working with Nginx I&rsquo;ve only worked with two other web servers &mdash; Apache and LightTPD &mdash; and Nginx is by far my favorite. If you&rsquo;re curious to know how Apache and Nginx compare performance-wise, the <a href="http://www.joeandmotorboat.com/2008/02/28/apache-vs-nginx-web-server-performance-deathmatch/">hard work has already been done for you</a>. Let&rsquo;s get started.</p>
+
+<p>For the purposes of this tutorial we&rsquo;ll be using the excellent <a href="http://www.macports.org/">MacPorts</a> package manager for Mac OSX. Of course we could just compile our own Nginx from source, but the MacPorts repositories are kept very up-to-date so there&rsquo;s really no need. If you haven&rsquo;t already done so, head on over to <a href="http://www.macports.org/">macports.org</a> and grab yourself a copy of the MacPorts disk image from the <a href="http://www.macports.org/install.php">downloads page</a>. The installer is very self explanatory and should complete in just a few minutes.</p>
+
+<p>Once you&rsquo;ve installed MacPorts, crack open a terminal window (found in <code>/Applications/Utilities/Terminal.app</code>) and type in the following command to make sure your MacPorts installation is the latest and greatest.</p>
+
+<pre><code>$ sudo port -d selfupdate
+$ port version
+Version: 1.710
+</code></pre>
+
+<p>Now let&rsquo;s go ahead and install the Nginx port.</p>
+
+<pre><code>$ sudo port install nginx
+---&gt;  Fetching nginx
+...
+---&gt;  Cleaning nginx
+</code></pre>
+
+<p>Let us pause and marvel at the beauty that is MacPorts. Whenever I type a little one-liner like that, I can&rsquo;t help but think of all the poor saps who have come before me and made all the hard stuff about installing software and their dependencies extremely easy. In fact, let us take a second to remember <a href="http://www.youtube.com/watch?v=jETv3NURwLc">just how spoiled we are</a> while our software is installing. :)</p>
+
+<p>Back? Great! Let&rsquo;s make sure it installed correctly.</p>
+
+<pre><code>$ which nginx
+/opt/local/sbin/nginx
+$ nginx -v
+nginx version: nginx/0.7.59
+</code></pre>
+
+<p>During the installation process, there was a small section that looked something like this:</p>
+
+<pre><code>###########################################################
+# A startup item has been generated that will aid in
+# starting nginx with launchd. It is disabled
+# by default. Execute the following command to start it,
+# and to cause it to launch at startup:
+#
+# sudo launchctl load -w /Library/LaunchDaemons/org.macports.nginx.plist
+###########################################################
+</code></pre>
+
+<p>What&rsquo;s all this? It basically says that if we want Nginx to start up automatically when we start up our machine, we can do so using <code>launchd</code> (see <a href="http://developer.apple.com/MacOsX/launchd.html">this Developer Connection article from Apple</a> for more information on <code>launchd</code>). I&rsquo;m going to leave this step out at this point, simply because I prefer to not have Nginx constantly running on my machine (I&rsquo;ll show you at the end of this article how to start and stop the Nginx server daemon at will). However, if you prefer to not have to manually start Nginx when you want to use it, go ahead and issue the following command:</p>
+
+<pre><code>$ sudo launchctl load -w /Library/LaunchDaemons/org.macports.nginx.plist
+</code></pre>
+
+<p>Now that we&rsquo;ve got Nginx installed the way we want, it&rsquo;s time to configure the thing. If we check out the Nginx <a href="http://svn.macports.org/repository/macports/trunk/dports/www/nginx/Portfile">Portfile</a>, we can see that all of our configuration files were installed into <code>/opt/local/etc/nginx</code> (hint: look for the <code>nginx_confdir</code> directive). If you don&rsquo;t like looking at Portfiles, just ignore that last bit and trust me. Let&rsquo;s have a look inside the directory and see what&rsquo;s there.</p>
+
+<pre><code>$ cd /opt/local/etc/nginx
+$ ls -1
+fastcgi_params.example
+koi-utf
+koi-win
+mime.types.example
+nginx.conf.example
+win-utf
+</code></pre>
+
+<p>We can ignore the <code>koi-utf</code>, <code>koi-win</code>, and <code>win-utf</code> files for now. These files contain various character maps. The <code>fastcgi_params.example</code> file is only needed if we&rsquo;re going to be setting up FastCGI, which is outside the scope of this particular article. The two files that we&rsquo;re interested in at this point are the <code>mime.types.example</code> and <code>nginx.conf.example</code> files.</p>
+
+<p>The <code>mime.types.example</code> file contains a map of <a href="http://en.wikipedia.org/wiki/Internet_media_type">Internet media types</a> (more commonly referred to as MIME types) to various file extensions that represent files of that type. The defaults are pretty good, so we&rsquo;ll just copy this file for now. If you need to register any custom MIME types later, you&rsquo;ll know where to look.</p>
+
+<pre><code>$ sudo cp mime.types.example mime.types
+</code></pre>
+
+<p>Now on to the main Nginx configuration file. First, copy the example.</p>
+
+<pre><code>$ sudo cp nginx.conf.example nginx.conf
+</code></pre>
+
+<p>Now I&rsquo;ll do a quick overview of the main configuration file and point out the relevant configuration directives. The example file only has the bare minimum enabled, but it&rsquo;s already enough to start the server. Open up <code>nginx.conf</code> in your favorite text editor. If we strip out all the commented lines (which I only do here for conciseness in writing), we&rsquo;ll get something close to the following:</p>
+
+<pre><code>worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include            mime.types;
+    default_type       application/octet-stream;
+    sendfile           on;
+    keepalive_timeout  65;
+
+    server {
+        listen       80;
+        server_name  localhost;
+
+        location / {
+            root   share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   share/nginx/html;
+        }
+    }
+}
+</code></pre>
+
+<p>This file reads something like this: Nginx is configured to start up one worker process that may accept up to 1024 connections at once. In the <code>http</code> daemon configuration section, we include our <code>mime.types</code> directives and set a default type in case it cannot be automatically determined. Then we set up a server configuration. The concept of a &ldquo;server&rdquo; in Nginx is more or less equal to that of a &ldquo;virtual host&rdquo; under Apache. We tell our server to bind to port 80 on localhost and the root directory of our site. Then we tell this server what to do if it encounters an error.</p>
+
+<p>Note that the file paths in the default configuration file are relative to <code>/opt/local</code> because that&rsquo;s the directory we installed Nginx to. So the path <code>share/nginx/html</code> will be expanded to <code>/opt/local/share/nginx/html</code>. If we want to have our web root be somewhere else, like <code>/var/www</code> for example, just use the full path instead of relative paths.</p>
+
+<p>Of course, that was a very high-level overview of the directives in this file. A more detailed description of all Nginx configuration directives can be found on the <a href="http://wiki.nginx.org/">Nginx wiki</a>.</p>
+
+<p>So, let&rsquo;s start up the server.</p>
+
+<pre><code>$ sudo nginx
+$ ps ax | grep nginx
+69033   ??  Ss     0:00.00 nginx: master process nginx
+69034   ??  S      0:00.00 nginx: worker process
+</code></pre>
+
+<p>We can see that Nginx started up one master process and one worker. If you navigate to <a href="http://localhost/">http://localhost/</a>, you should see a welcome message from Nginx.</p>
+
+<p>Awesome! You&rsquo;re now running Nginx. When the daemon is running, it stores its <a href="http://en.wikipedia.org/wiki/Process_identifier">pid</a> in a file at <code>/opt/local/var/run/nginx/nginx.pid</code>. So to stop the daemon, we can use the following command:</p>
+
+<pre><code>$ sudo kill `cat /opt/local/var/run/nginx/nginx.pid`
+</code></pre>
+
+        <div class="post-foot">
+            <a href="/2009/07/install-nginx-on-osx" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
+            
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+
+    </div>
+    <div id="foot">
+        <p>Copyright &copy; 2010 Michael J. I. Jackson. &nbsp; <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> <a href="/index.xml" title="Subscribe to the feed">ATOM</a></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-998116-6");
+pageTracker._trackPageview();
+}catch(err){}
+</script>
+
+</body>
+
+</html>

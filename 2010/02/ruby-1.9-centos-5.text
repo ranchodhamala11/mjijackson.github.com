@@ -1,0 +1,18 @@
+---
+title: How to Install Ruby 1.9 on CentOS 5
+tags: [ruby, centos]
+published: 2010-02-07 10:10
+---
+
+CentOS is a great Linux distro with possibly the worst selection of up-to-date packages. I love the ease of use of CentOS and the close ties to RedHat, but using it often means that I need to compile the libraries I need from source. When setting up a new VPS recently, these are the steps I took to install the latest version of Ruby.
+
+    $ sudo yum groupinstall 'Development Tools'
+    $ sudo yum install readline-devel
+    $ cd /usr/local/src
+    $ wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.1-p376.tar.gz
+    $ tar xzvf ruby-1.9.1-p376.tar.gz
+    $ cd ruby-1.9.1-p376
+    $ ./configure && make
+    $ sudo make install
+
+Everything you need is in the development tools, except for readline-devel.

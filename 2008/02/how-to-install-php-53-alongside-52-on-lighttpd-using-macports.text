@@ -1,0 +1,254 @@
+---
+title: How to install PHP 5.2, 5.3, and LightTPD on Mac OS X using MacPorts
+author: Michael J. I. Jackson
+published: 2008-02-04 19:40
+updated: 2009-06-27 09:25
+tags: [php, mysql, lighttpd, macports]
+---
+
+A few months ago, I was looking for a way to install PHP 5.3 alongside 5.2 on my development machine, a MacBook. Why? It has a lot to do with the new [late static bindings][lsb] and [namespaces][ns] that have already been committed into PHP's HEAD. I've been anticipating these features for a while now, and I was anxious to try them out.
+
+[lsb]: http://php.net/manual/en/language.oop5.late-static-bindings.php
+[ns]: http://blog.agoraproduction.com/index.php?/archives/47-PHP-Namespaces-Part-1-Basic-usage-gotchas.html
+
+Special thanks goes to MacPorts' Ryan Schmidt who helped me out on [this][rs] thread.
+
+[rs]: http://lists.macosforge.org/pipermail/macports-users/2007-December/007567.html
+
+Step One: Install MacPorts
+--------------------------
+
+If you're not familiar with [MacPorts][mp], it's a package management system for Mac OS X. MacPorts makes it easy to install, upgrade, and remove open-source software packages on your Mac. In this tutorial, it's what I'll be using to install all of the new software. If you haven't yet installed MacPorts, the project has a nice [installation guide][mpi] that will guide you through the entire process. But don't worry, you probably won't need it. The installer is very straightforward.
+
+[mp]: http://www.macports.org/
+[mpi]: http://www.macports.org/install.php
+
+<img src="/etc/macports-installer-dialogue.gif" alt="MacPorts installer dialogue">
+
+Once you get MacPorts installed, update your port trees with the following command:
+
+    $ sudo port -d selfupdate
+
+Step Two: Install LightTPD
+--------------------------
+
+[LightTPD][ltpd] is a great webserver that is very fast and very flexible. In this tutorial, we'll be taking advantage of some of that flexibility to install two versions of PHP and run them on the same webserver using [FastCGI][fcgi]. If you'd like to know more, check out [this][ga] post by Garrett Albright. He also does a good job explaining why we'll be using LightTPD instead of [Apache][ap]. Also, the basic MacPorts installation of PHP and LightTPD in this tutorial will closely follow the instructions given in that post, but with a few slight modifications.
+
+[ltpd]: http://www.lighttpd.net/
+[fcgi]: http://www.fastcgi.com/
+[ga]: http://raygunrobot.com/archives/PHP-5-and-LightTPD-on-Mac-OS-X
+[ap]: http://apache.org/
+
+Installing LightTPD using MacPorts is simple:
+
+    $ sudo port install lighttpd
+
+If you've ever compiled software from source, you'll recognize the significance of that one line! It does a LOT of stuff for you in the background.
+
+Step Three: Install PHP 5.2
+---------------------------
+
+Being the current stable release at the time of this writing, PHP 5.2 should automatically install when you run `port install php5`. However, because we'll be running on LightTPD using [mod_fastcgi][mfcgi], we'll need to include the `fastcgi` [variant][var]. Note: You may also want to use other variants such as `mysql5` or `postgresql` to include database libraries, but those are outside the scope of this tutorial. If you do decide to include support for MySQL, I'll show you how to hook it up to 5.3 later on.
+
+[mfcgi]: http://trac.lighttpd.net/trac/wiki/Docs:ModFastCGI
+[var]: http://guide.macports.org/#using.variants
+
+    $ sudo port install php5 +fastcgi
+
+This command will install PHP 5 with all of its dependencies, and will also compile a FastCGI module that we can use with our LightTPD installation. This could take a while, so make sure you have something to do while everything compiles.
+
+Step Four: Install PHP 5.3
+--------------------------
+
+If you don't need PHP 5.3 right now, you can skip this part. Otherwise, download the latest PHP 5.3 snapshot from [here][snap] and uncompress it on your machine. Because I'm a big fan of [using /usr/local][usrl], I uncompressed mine to `/usr/local/src`, but you can decompress yours anywhere you like. Now we're going to do something special. Remember all those packages that MacPorts installed automatically for us when we installed PHP 5.2? We can use those same packages to compile 5.3.
+
+[snap]: http://snaps.php.net/
+[usrl]: http://hivelogic.com/articles/using_usr_local/
+
+    $ cd /usr/local/src/php5.3-*
+    $ ./configure
+        --prefix=/usr/local
+        --mandir=/usr/local/share/man
+        --infodir=/usr/local/share/info
+        --with-config-file-path=/usr/local/etc
+        --enable-calendar
+        --with-iconv=/opt/local
+        --enable-exif
+        --enable-ftp
+        --enable-wddx
+        --with-zlib=/opt/local
+        --with-bz2=/opt/local
+        --with-libxml-dir=/opt/local
+        --with-gettext=/opt/local
+        --with-xmlrpc
+        --enable-soap
+        --enable-bcmath
+        --enable-mbstring
+        --enable-dba
+        --with-openssl=/opt/local
+        --with-mhash=/opt/local
+        --with-mcrypt=/opt/local
+        --with-xsl=/opt/local
+        --with-curl=/opt/local
+        --with-pcre-regex=/opt/local
+        --with-gd
+        --with-jpeg-dir=/opt/local
+        --with-png-dir=/opt/local
+        --enable-gd-native-ttf
+        --without-pear
+        --with-freetype-dir=/opt/local
+        --with-ldap=/usr
+        --with-kerberos=/usr
+        --with-iodbc=/usr
+        --with-sqlite
+        --with-pdo-sqlite=/opt/local
+        --enable-sqlite-utf8
+
+If you're using MySQL 5
+-----------------------
+
+If you don't have a MacPorts install of MySQL 5 already, you can find directions on how to do that [here][mysql5]. From this point, I assume you've already got it installed and working.
+
+[mysql5]: http://2tbsp.com/content/install_and_configure_mysql_5_macports
+
+If you'd like to compile support for MySQL 5 into your PHP 5.3 build, you'll need a few additional steps. By way of explanation, the PHP installer expects a certain directory structure in the MySQL directory. However, the MacPorts install of MySQL 5 moves things around a bit. No problem, we'll just set up a temporary directory with some symlinks to help the PHP build find everything.
+
+    $ cd /usr/local/tmp
+    $ mkdir mysql5
+    $ ln -s /opt/local/lib/mysql5 mysql5/lib
+    $ ln -s /opt/local/include/mysql5 mysql5/include
+
+These commands will create a temporary directory at `/usr/local/tmp/mysql5` that contains two symlinks to the actual locations of the MacPorts MySQL 5 installation. Next, we need to make sure to tell the PHP configure script about these. Add the following flags to the configure command we made above.
+
+    --with-mysql=/usr/local/tmp/mysql5
+    --with-pdo-mysql=/opt/local/bin/mysql_config5
+    --with-mysql-sock=/opt/local/var/run/mysql5/mysqld.sock
+    --with-mysqli=/opt/local/bin/mysql_config5
+
+After you run the configure, you can delete the `/usr/local/tmp/mysql5` directory.
+
+Step Five: Configure PHP and LightTPD
+-------------------------------------
+
+When the PHP installation(s) is finished, we need to create and modify our php.ini file.
+
+    $ cd /opt/local/etc/
+    $ cp php.ini-recommended php.ini
+
+The above commands copy the recommended initialization file (php.ini-recommended) that ships with the default distribution to a new file (php.ini) that will be used when PHP gets fired up. Open up `/opt/local/etc/php.ini` in your text editor, and find the following line (in my php.ini, it was on line 565):
+
+    ; cgi.fix_pathinfo=1
+
+and uncomment it
+
+    cgi.fix_pathinfo=1
+
+That's all for now so save and close the file. If you've installed 5.3 as well, you can find that configuration file at `/usr/local/etc/php.ini` (assuming you installed everything where I did). Be sure to make the same change in that file as well.
+
+Now it's time to modify your LightTPD configuration file. Like PHP, LightTPD ships with a default configuration file that you should copy at first to get you started.
+
+    $ cd /opt/local/etc/lighttpd/
+    $ cp lighttpd.conf.default lighttpd.conf
+
+Open your newly created LightTPD configuration file (`/opt/local/etc/lighttpd/lighttpd.conf`) in a text editor, find the line (line 24 in my file) that says
+
+    #                               "mod_fastcgi",
+
+and uncomment it (remove the hash at the beginning of the line). This line tells LightTPD to enable the `mod_fastcgi` module.
+
+Immediately following this section of the configuration file is a section that tells the webserver where you want to serve files from and where you keep your error logs. I use `/usr/local/www` as my webserver root, so I have mine configured like this:
+
+    ## a static document-root, for virtual-hosting take look at the
+    ## server.virtual-* options
+    server.document-root = "/usr/local/www/public-html/"
+
+    ## where to send error-messages to
+    server.errorlog = "/usr/local/www/logs/lighttpd/error.log"
+
+My document root is `/usr/local/www/public-html`. This is the directory that you'll place all of your publicly visible HTML and/or PHP files in. A few lines down, you'll notice the following:
+
+    #server.event-handler = "freebsd-kqueue" # needed on OS X
+
+Since we're on OS X, uncomment this line. Okay, take a breather. We're almost done.
+
+Step Six: Configure FastCGI
+---------------------------
+
+All that's left is to tell LightTPD how to handle requests for PHP files. Recall that we're going to be running PHP with FastCGI, so we'll need to configure the fastcgi module. Look for the line in your LightTPD configuration file that says
+
+    #### fastcgi module
+
+Just below this line is where you'll put the following configuration data for a normal PHP 5.2 install.
+
+    fastcgi.server = ( ".php" =>
+        ( "localhost" =>
+            (
+                "socket" => "/tmp/php5-fastcgi.socket",
+                "bin-path" => "/opt/local/bin/php-cgi",
+                "broken-scriptfilename" => "enable",
+                "allow-x-send-file" => "enable",
+                "min-procs" => 2,
+                "max-procs" => 2,
+                "bin-environment" => (
+                    "PHP_FCGI_CHILDREN" => "4",
+                    "PHP_FCGI_MAX_REQUESTS" => "500"
+                )
+            )
+        )
+    )
+
+If you'd like to know what's going on here, you can find a lot of information in the [fastcgi.txt][] file. Basically, we're telling LightTPD to treat any request for a file that ends in ".php" as PHP.
+
+[fastcgi.txt]: http://trac.lighttpd.net/trac/browser/trunk/doc/fastcgi.txt
+
+If you don't want to install PHP 5.3, you're done! However, it's easy to add a 5.3 configuration directive as well. You need to do three things:
+
+- Figure out what criterion the server can use to determine that the file should
+  be treated as PHP 5.3 instead of 5.2. In my case, I put all of my experimental
+  5.3 stuff in a special directory at my web server root, `/php53/`.
+- Change the temporary socket location
+- Change the binary executable location
+
+My PHP 5.3 configuration section follows. Yours may be different depending on personal preference.
+
+    $HTTP["url"] =~ "/php53/" {
+        fastcgi.server = ( ".php" =>
+            ( "localhost" =>
+                (
+                    "socket" => "/tmp/php53-fastcgi.socket",
+                    "bin-path" => "/usr/local/bin/php-cgi",
+                    "broken-scriptfilename" => "enable",
+                    "allow-x-send-file" => "enable",
+                    "min-procs" => 2,
+                    "max-procs" => 2,
+                    "bin-environment" => (
+                        "PHP_FCGI_CHILDREN" => "4",
+                        "PHP_FCGI_MAX_REQUESTS" => "500"
+                    )
+                )
+            )
+        )
+    }
+
+Here we use a special hash variable `$HTTP` to parse the URL request and look for our special directory. This feature of the LightTPD webserver offers some incredible flexibility. We can actually use any regular expression we want in place of the `/php53/` above.
+
+Then, if the URL matches our regular expression, we tell the server to use the executable in `/usr/local/bin/php-cgi` (the 5.3 executable) to create the temporary socket at `/tmp/php53-fastcgi.socket`. Comparison with the first directive should make the differences obvious.
+
+Make sure it all worked!
+------------------------
+
+Time to test it out. First we need to fire up the web server. Before starting LightTPD, we can use the following command to make sure it likes our config file.
+
+    $ lighttpd -t -f /opt/local/etc/lighttpd/lighttpd.conf
+
+If everything is okay, you should see a `Syntax OK` message. If something's not right, go back and check your work. This next command will actually start the webserver.
+
+    $ lighttpd -D -f /opt/local/etc/lighttpd/lighttpd.conf
+
+Now, go to your web server root (specified in Step 5 above), and create a file called `info.php`. Put the following code inside.
+
+    <?php phpinfo(); ?>
+
+Now open up your browser and navigate to `http://localhost/info.php`. You should see a page with all of your PHP 5.2 configuration information.
+
+To test the PHP 5.3 install, make a special `php53` directory (assuming you followed the above configuration) in your webserver root and place a copy of the above `info.php` file in it. Now point your browser to `http://localhost/php53/info.php` and you should see the configuration information for 5.3.

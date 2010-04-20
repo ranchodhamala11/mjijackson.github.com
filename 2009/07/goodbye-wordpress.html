@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>mjijackson &raquo; Goodbye WordPress, Hello Sinatra</title>
+<meta name="description" content="Web development and design on the Mac, by Michael J. I. Jackson">
+<meta name="keywords" content="Ruby, JavaScript, PHP, HTML, CSS, web, web development, web design, Mac">
+<meta name="viewport" content="width=800">
+<link rel="alternate" type="application/atom+xml" href="/index.xml">
+<link rel="stylesheet" type="text/css" media="all" href="/css/reset.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/style.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/pre.css">
+</head>
+
+<body>
+
+<div id="wrapper">
+    <ul id="nav">
+        
+        <li class="nav-title"><a class="selected" href="/">MJIJACKSON</a></li>
+        <li class="nav-feed"><a href="/index.xml" title="Subscribe to the feed">FEED</a></li>
+        <li class="nav-code"><a href="http://github.com/mjijackson">CODE</a></li>
+        <li class="nav-about"><a href="/about">ABOUT</a></li>
+    </ul>
+    <div id="body">
+    <div class="post">
+    <div class="post-meta">
+        <h2>Goodbye WordPress, Hello Sinatra</h2>
+        <div class="post-date">Wednesday, 22 Jul 2009</div>
+        <div class="post-tags">
+        <a title="All posts tagged blogging" href="/tag/blogging">#blogging</a> <a title="All posts tagged wordpress" href="/tag/wordpress">#wordpress</a> <a title="All posts tagged php" href="/tag/php">#php</a> <a title="All posts tagged sinatra" href="/tag/sinatra">#sinatra</a> <a title="All posts tagged ruby" href="/tag/ruby">#ruby</a> <a title="All posts tagged rack" href="/tag/rack">#rack</a>
+        </div>
+    </div>
+    <div class="post-body">
+    <p>I have been publishing articles and links rather intermittently on this site for just over a year now. While I&rsquo;m not the most prolific blogger, I do try to make sure that the stuff I post here is of good quality. I won&rsquo;t ever post something here that I don&rsquo;t think will be of some use to me personally in the future. I am currently in the process of learning how to manage my time so that I can post content more regularly. The goal is two-fold: 1) I&rsquo;d like to increase my readership and 2) I&rsquo;d really like to improve my writing skills.</p>
+
+<p>A few weeks ago I sat down and tried to figure out exactly what I was doing with <a href="http://mjijackson.com/">mjijackson.com</a>. I wasn&rsquo;t satisfied with the quality of the site, and, being the kind of person who tends to take an all-or-nothing approach at just about everything I do, I sat down to figure out if I should keep the site going or if I should abandon it altogether. There are <em>way</em> too many neglected blogs on the net, and I certainly don&rsquo;t want to contribute to the digital waste.</p>
+
+<h2>Enter WordPress</h2>
+
+<p>As of about a month ago I was using the famous <a href="http://wordpress.org/">WordPress</a> publishing platform to manage my content. When I first chose WordPress, I didn&rsquo;t really put a lot of thought into the decision. It was the obvious choice for me, being primarily a PHP programmer at the time, and with such a large community it seemed to be the safest and quickest option. Also, I didn&rsquo;t want to take the time to learn the intricacies of blogging platforms before I started writing, so that ruled out writing my own platform from scratch.</p>
+
+<p>As I considered the fate of this blog, I tried to identify reasons why I don&rsquo;t post content as often as I&rsquo;d like. Of course part of the problem is my personal level of dedication to the site, but I quickly realized that another large part of the problem had to do with the software I was using. I just didn&rsquo;t enjoy using it, for several reasons.</p>
+
+<p>First, WordPress has always felt very slow to me. Even on a dedicated VPS with barely any traffic, the web site just seemed to pause for a second to think before sending back any content. I never really understood why it should be so slow, especially when hardly anyone was actually visiting the site. I can&rsquo;t point to any single bottleneck in the code, but that&rsquo;s just how it feels to me. Big and slow.</p>
+
+<p>Second, despite the fact that WordPress includes <a href="http://michelf.com/">Michel Fortin</a>&rsquo;s <a href="http://michelf.com/projets/php-markdown/">port</a> of <a href="http://daringfireball.net/projects/markdown/">Markdown</a>, the two still don&rsquo;t play very nicely together. I&rsquo;m sure it has something to do with the whole <a href="http://michelf.com/weblog/2005/wordpress-text-flow-vs-markdown/">Text Flow vs. Markdown</a> clash, but I just don&rsquo;t have the time to look into it. When it comes to text formatting, WordPress definitely tries to do way too much right out of the box.</p>
+
+<p>Then there&rsquo;s the admin interface. I don&rsquo;t think I&rsquo;ll ever quite understand why the WordPress devs decided they could do better than the folks at <a href="http://www.happycog.com/">Happy Cog</a>, but I felt a huge loss of desire to use the software when they ditched <a href="http://www.happycog.com/design/wordpress/">Happy Cog&rsquo;s beautiful design</a> for <a href="http://wpdotorg.files.wordpress.com/2009/04/current.png">the 2.8 interface</a>. The gray is so uninspiring and ugly, it&rsquo;s actually very difficult for me to actually have the desire to log in and use it!</p>
+
+<h2>Exit WordPress</h2>
+
+<p>Thus, I determined for better or for worse that my beloved WordPress blogging platform had to get the axe. But what would I use instead?</p>
+
+<p>I looked at a lot of different alternatives including <a href="http://expressionengine.com/">Expression Engine</a>, <a href="http://www.movabletype.org/">Movable Type</a>, <a href="http://www.tumblr.com/">Tumblr</a>, and even <a href="http://mephistoblog.com/">Mephisto</a>, but they all seemed just a tad overkill for what I really needed. And besides, there was no real guarantee that I wasn&rsquo;t going to end up with the same problems I was experiencing with WordPress.</p>
+
+<p>In the end, every pre-packaged piece of software asks you to learn some new templating system along with a new way of organizing your content. To tweak everything to be just the way you like it can take weeks, assuming it&rsquo;s not your full-time gig.</p>
+
+<h2>Time for Something Else</h2>
+
+<p>After giving it a good think I decided the easiest thing to do would be to roll my own simple blogging system using the powerful tools available in the Ruby community.</p>
+
+<p>I realize this probably sounds a bit crazy to someone who doesn&rsquo;t write code for a living. I mean, why write your own platform when there are so many freely available? Surely the amount of time required to write your own blogging system far outweighs the time it takes to learn the intricacies of one of the others, right? The answer: you&rsquo;d be surprised.</p>
+
+<p>The requirements of my custom blogging platform were very simple. With it, I wanted it to be able to:</p>
+
+<ul>
+<li>Use Markdown for all of my writing</li>
+<li>Provide syndication via <a href="http://www.atomenabled.org/">Atom</a></li>
+<li>Give readers the ability to search and browse archives of old posts</li>
+<li>Assign tags to posts</li>
+<li>Assign alternate URL&rsquo;s to posts that are merely commentary about someone else&rsquo;s writing</li>
+<li>Be very fast</li>
+</ul>
+
+
+<h2>The Tools</h2>
+
+<p>Using <a href="http://www.sinatrarb.com/">Sinatra</a> and his friend <a href="http://rack.rubyforge.org/">Rack</a>, I was able to implement most of the above functionality in about a week&rsquo;s worth of spare time. I used <a href="http://rubyforge.org/projects/builder/">Builder</a> to create my <a href="/index.xml">Atom feed</a> and standard <a href="http://ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html">ERB</a> for my templates. It was a breeze to implement <a href="http://www.davebalmain.com/">Ferret</a> for searching and indexing, especially given the wealth of <a href="http://ferret.davebalmain.com/api/files/README.html">documentation</a> available.</p>
+
+<p>For speed, I set up a <a href="http://code.macournoyer.com/thin/">Thin</a> cluster behind <a href="http://wiki.nginx.org/Main">Nginx</a> and I cache everything I can on the client using HTTP&rsquo;s <code>Last-Modified</code> header. It feels very snappy right now, but if this proves to be too slow in the future I can always generate cached versions of the HTML files and put them in a place where Nginx can find them and serve them quickly without ever resorting to the cluster.</p>
+
+<p>I deploy the entire project to my slice on <a href="http://www.slicehost.com/">Slicehost</a> using <a href="http://www.capify.org/">Capistrano</a> and manage the repetitive tasks with <a href="http://rubyforge.org/projects/rake/">Rake</a>. I write all of my posts in a text editor and save them as flat files that are formatted later using <a href="http://github.com/rtomayko/rdiscount/tree/master">RDiscount</a>.</p>
+
+<p>Every single tool that I mentioned in the last three paragraphs (with the exception of Nginx) is an open source Ruby library. Let me just say that Ruby has some absolutely fantastic tools for web development!</p>
+
+<p>Now I have a fast blogging system that is custom built to suit my tastes in about 800 lines of Ruby code. There is no black box, no magic going on behind the scenes. I know every single thing that is happening and exactly how it&rsquo;s happening. If something breaks, I&rsquo;ll be able to figure it out very quickly. If some cool new web service comes along that I want to subscribe to, I don&rsquo;t have to go hunting for a plugin that suits my tastes. Instead, I can easily roll it into my own system without too much hassle.</p>
+
+<p>Perfect.</p>
+
+        <div class="post-foot">
+            <a href="/2009/07/goodbye-wordpress" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
+            
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+
+    </div>
+    <div id="foot">
+        <p>Copyright &copy; 2010 Michael J. I. Jackson. &nbsp; <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> <a href="/index.xml" title="Subscribe to the feed">ATOM</a></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-998116-6");
+pageTracker._trackPageview();
+}catch(err){}
+</script>
+
+</body>
+
+</html>
