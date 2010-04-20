@@ -5,7 +5,7 @@ require 'time'
 require 'builder'
 require 'rdiscount'
 
-PUBLIC = '.'
+PUBLIC = 'public'
 SOURCE = 'source'
 
 directory PUBLIC
@@ -234,12 +234,6 @@ end
 
 task :default => :build
 
-desc "Build the entire site in the master branch"
-task :pages do
-  sh "git checkout master"
-  Rake::Task[:build].invoke
-end
-
 desc "Build the entire site"
 task :build => [:posts, :tags, :archives, :index, :about, :not_found, :feed, :sitemap, :assets]
 
@@ -298,10 +292,7 @@ end
 
 desc "Remove all generated files"
 task :clean do
-  Dir[File.join(PUBLIC, '*')].each do |path|
-    base = File.basename(path)
-    rm_rf path unless base == "Rakefile" || base == "source"
-  end
+  rm_rf PUBLIC
 end
 
 desc "Deploy to production (from GitHub)"
