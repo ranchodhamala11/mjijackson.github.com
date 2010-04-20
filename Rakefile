@@ -287,7 +287,9 @@ end
 
 desc "Copy all static assets"
 task :assets => PUBLIC do
-  cp_r Dir[File.join(SOURCE, 'assets', '*')], PUBLIC
+  %w< css etc CNAME README robots.txt >.each do |file|
+    cp_r File.join(SOURCE, file), PUBLIC
+  end
 end
 
 desc "Remove all generated files"
