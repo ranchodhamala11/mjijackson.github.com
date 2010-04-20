@@ -1,8 +1,0 @@
----
-title: Rockstars and Ninjas
-author: Michael J. I. Jackson
-published: 2009-07-25 12:40
-tags: [employment, programming]
----
-
-
