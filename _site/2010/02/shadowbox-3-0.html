@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>mjijackson.com &raquo; Shadowbox 3.0</title>
+<meta name="description" content="Web development and design on the Mac, by Michael J. I. Jackson">
+<meta name="keywords" content="Ruby, JavaScript, PHP, HTML, CSS, web, web development, web design, Mac">
+<meta name="viewport" content="width=800">
+<link rel="alternate" type="application/atom+xml" href="/index.xml">
+<link rel="stylesheet" type="text/css" media="all" href="/css/reset.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/style.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/pre.css">
+</head>
+
+<body>
+
+<div id="wrapper">
+    <ul id="nav">
+        
+        <li class="nav-title"><a class="selected" href="/">MJIJACKSON</a></li>
+        <li class="nav-feed"><a href="/index.xml" title="Subscribe to the feed">FEED</a></li>
+        <li class="nav-code"><a href="http://github.com/mjijackson">CODE</a></li>
+        <li class="nav-about"><a href="/about">ABOUT</a></li>
+    </ul>
+    <div id="body">
+    <div class="post">
+    <div class="post-meta">
+        <h2>Shadowbox 3.0</h2>
+        <div class="post-date">Saturday, 20 Feb 2010</div>
+        <div class="post-tags">
+        <a title="All posts tagged javascript" href="/tag/javascript">#javascript</a> <a title="All posts tagged shadowbox" href="/tag/shadowbox">#shadowbox</a>
+        </div>
+    </div>
+    <div class="post-body">
+    <p>Last week I pushed out some major updates to my most well-known piece of work to date, <a href="http://shadowbox-js.com/">Shadowbox</a>. This update finally brought version 3 of the code out of beta and into a much more robust and ready state. Overall I&rsquo;m very happy with the release. It took much longer than I expected (for a lot of different reasons), but the time it took just helped to produce a better product in the end.</p>
+
+<p>In this post I hope to reveal some of the steps I took to improve the code base and some of the gotchas that developers who are experienced with the library might encounter when upgrading to the latest version of the code. If you run into any snags that are not outlined in this post, please let me know so I can consider making further adjustments to this post and/or the <a href="http://shadowbox-js.com/usage.html">documentation</a> to clear up any confusion.</p>
+
+<h2>Initialization</h2>
+
+<p>The 3.0 beta expected the developer to specify some dependencies in <code>Shadowbox.init</code> if they were different from the defaults. These included the players, language, and adapter to use. The script would then check these settings and load any needed files by appending <code>&lt;script&gt;</code> tags to the head of the document. However, many users had trouble understanding these settings and couldn&rsquo;t get the script to work properly as a result. This often happened when a user desired to play a certain type of content and neglected to load the appropriate player classes during initialization.</p>
+
+<p>This behavior has been modified in the final version of 3.0. All player, language, and adapter dependencies are now specified when you create your own <a href="http://shadowbox-js.com/download.html">custom build</a> of the code. Instead of being requested on every page load, all necessary files are compiled into the code up front. This change should make it much easier for users who are not familiar with the code to get it up and running quickly.</p>
+
+<p>An added benefit of compiling everything into one file up front is that no additional HTTP requests need to be made to the server for dependency files. This should significantly speed up your page load times and decrease the load on your server.</p>
+
+<h2>Setup</h2>
+
+<p>The ability to pass in options via markup has been removed from the script entirely. There are several reasons for this. The first is that putting a JSON object into HTML markup is just not good practice. When I first invented that feature, I thought it would be neat if someone were able to use Shadowbox using only HTML markup, and without touching JavaScript. So I added the ability to put a JSON hash in the page markup and <code>eval</code> it at runtime. However, in retrospect it seems a bit silly. After all, someone who is not comfortable using JavaScript certainly wouldn&rsquo;t be comfortable putting JSON objects into their HTML!</p>
+
+<p>The second reason is related to the first, and it is simply the use of <code>eval</code> on text that is included as part of the page. With the growing popularity of <a href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS</a> and similar malicious attacks on website markup, using <code>eval</code> presents a major security vulnerability. I know that probably could have constructed some elaborate workaround using Crockford&rsquo;s <a href="http://www.json.org/json2.js">json.js</a>, but I didn&rsquo;t consider the extra weight worth it for a feature that was clumsy in the first place.</p>
+
+<p>Now you will still be able to use custom options for your links, but you need to do it via <code>Shadowbox.setup</code> (several examples are available in <a href="http://shadowbox-js.com/assets/demo.js">demo.js</a>, the same file that is used to run the examples on the Shadowbox website.) Setting up your links via HTML markup still works, just not with custom options.</p>
+
+<h2>Hacks</h2>
+
+<p>Another major step I took in this latest release was to eliminate the number of hacks in the code. The web by nature is one big hack, and client-side programming can get especially hacky especially with a product as complex as Shadowbox. However, I believe that it&rsquo;s only good to resort to hacks when you need them and only after exhausting all possible (and reasonable) alternatives.</p>
+
+<p>One hack that I wanted to eliminate completely was the use of a &ldquo;<a href="http://msdn.microsoft.com/en-us/library/ms537634.aspx">dynamic property</a>&rdquo; in the CSS code. This code was used to dynamically calculate the height of the viewport in browsers that do not have support for <code>position: fixed</code> like IE6 (there&rsquo;s a bit more to it, but that&rsquo;s the basic gist of it.) However, it never sat particularly well with me. I&rsquo;m happy to say that I was able to modify the code to not use any proprietary CSS properties in version 3.0 final. It now feels much cleaner, and it&rsquo;s a lot more future-proof.</p>
+
+<p>One more hack that I tried to eliminate is the use of <a href="http://www.quirksmode.org/js/detect.html">browser sniffing via the user-agent string</a>. While I wasn&rsquo;t able to completely eliminate this (yet), I&rsquo;m down to only a few instances of it now. The code relies a lot more on object/feature detection instead. This is also much more future-proof and should go a long way in helping to support as many browsers as possible.</p>
+
+<h2>Speed</h2>
+
+<p>The entire codebase has been streamlined to run faster and more efficiently in every browser without sacrificing any of the existing functionality. I ran quite a few tests to determine the most efficient way to structure the CSS and conduct the animations while keeping memory usage down. In the process I squashed several memory leaks in IE6 that caused that particular browser to slow down after reloading the page several times. In short, the whole experience should be smoother and more consistent for users, no matter what platform they are on.</p>
+
+<h2>Source</h2>
+
+<p>The new home for the Shadowbox code is <a href="http://github.com/mjijackson/shadowbox">on GitHub</a>. Although the code is not released under an open source license, I have always made the source available for debugging and learning purposes and I intend to keep it that way. Please report any bugs that you may find on the new <a href="http://github.com/mjijackson/shadowbox/issues">issue tracker</a>.</p>
+
+<p>I hope you enjoy the latest release of Shadowbox.</p>
+
+        <div class="post-foot">
+            <a href="/2010/02/shadowbox-3-0" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
+            
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+
+    </div>
+    <div id="foot">
+        <p>Copyright &copy; 2010 Michael J. I. Jackson. &nbsp; <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> <a href="/index.xml" title="Subscribe to the feed">ATOM</a></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-998116-6");
+pageTracker._trackPageview();
+}catch(err){}
+</script>
+
+</body>
+
+</html>

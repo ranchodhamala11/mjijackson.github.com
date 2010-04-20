@@ -1,0 +1,17 @@
+---
+title: Objective-J and Leaky Abstractions
+author: Michael J. I. Jackson
+published: 2009-01-02 17:53
+updated: 2009-01-03 00:53
+tags: [javascript, objective-j]
+alt: http://cappuccino.org/discuss/2008/12/08/on-leaky-abstractions-and-objective-j/
+---
+
+Excellent article by Objective-J author Francisco Tolmasky in response to [John Resig][jr]'s [original article][orig] on JavaScript language abstractions. Although I'm a huge fan of Resig's work and generally believe him to be right on with his evaluation of things, I tend to side with Tolmasky on this one.
+
+[jr]: http://ejohn.org
+[orig]: http://ejohn.org/blog/javascript-language-abstractions/
+
+In case you have been living under a rock and haven't yet heard of Objective-J or the Cappuccino framework, check out the first real world demo, [280 slides][280].
+
+[280]: http://280slides.com/

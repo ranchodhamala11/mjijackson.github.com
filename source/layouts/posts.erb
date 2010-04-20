@@ -1,0 +1,21 @@
+% posts.each do |post|
+<div class="post">
+    <div class="post-meta">
+        <h2><%= post.title %></h2>
+        <div class="post-date"><%= post.published.strftime("%A, %d %b %Y") %></div>
+        <div class="post-tags">
+        <%= post.tags.map {|tag| sprintf('<a title="%s" href="%s">#%s</a>', 'All posts tagged ' + tag, '/tag/' + CGI.escape(tag), tag) }.join(' ') %>
+        </div>
+    </div>
+    <div class="post-body">
+    <%= post.to_html %>
+        <div class="post-foot">
+            <a href="<%= post.permalink %>" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
+            <% unless post.is_original? %>
+            <a href="<%= post.alt %>" class="jump" title="Jump to the original URL referenced in this post">JUMP TO THIS URL</a>
+            <% end %>
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+% end

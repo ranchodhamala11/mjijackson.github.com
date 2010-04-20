@@ -1,0 +1,76 @@
+---
+title: Call for Shadowbox Translations
+author: Michael J. I. Jackson
+published: 2008-03-29 10:25
+updated: 2009-06-27 01:42
+tags: [javascript, shadowbox]
+---
+
+Due to popular demand, the next version of Shadowbox will have much improved i18n support (among other improvements). However, unfortunately I'm only fluent in 2 languages (English and Italian), so I need your help. If you would like Shadowbox translated into your native tongue, please translate the following object and send it to me.
+
+    Shadowbox.lang = {
+    
+        code:       'en',
+        
+        of:         'of',
+        
+        loading:    'loading',
+        
+        cancel:     'Cancel',
+        
+        next:       'Next',
+        
+        previous:   'Previous',
+        
+        play:       'Play',
+        
+        pause:      'Pause',
+        
+        close:      'Close',
+        
+        errors:     {
+            single: 'You must install the <a href="{0}">{1}</a> browser plugin to view this content.',
+            shared: 'You must install both the <a href="{0}">{1}</a> and <a href="{2}">{3}</a> browser plugins to view this content.',
+            either: 'You must install either the <a href="{0}">{1}</a> or the <a href="{2}">{3}</a> browser plugin to view this content.'
+        }
+        
+    };
+
+I'll be keeping a list of already supported languages on this page. Please include the native name of the language with your submission. For example, for French I would write "Français".
+
+For language codes, see [this][gnu] page.
+
+[gnu]: http://www.gnu.org/software/gettext/manual/gettext.html#Language-Codes
+
+Already supported languages:
+
+- Arabic
+- Bahasa Indonesia
+- Burmese
+- Català
+- Čeština
+- Deutsch
+- Deutsch (Swiss)
+- English
+- Eesti keel
+- Español
+- Français
+- Galego
+- Hebrew
+- Íslenska
+- Italiano
+- 한국말
+- Burmese
+- Nederlands
+- Norsk
+- Polski
+- Português (Brasil)
+- Português (Portugal)
+- русский язык
+- Română
+- Slovenčina
+- Suomi
+- Svenska
+- Türkçe
+- 中文 (Simplified)
+- 中文 (Traditional)

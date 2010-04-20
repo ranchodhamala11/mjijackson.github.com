@@ -1,0 +1,10 @@
+-----
+title: Better JavaScript Compression with YUI Compressor
+author: Michael J. I. Jackson
+published: 2009-07-02 07:25
+updated: 2009-07-02 07:25
+tags: [javascript]
+-----
+
+<div style="width:425px;text-align:left" id="__ss_1659450"><a style="font:14px Helvetica,Arial,Sans-serif;display:block;margin:12px 0 3px 0;text-decoration:underline;" href="http://www.slideshare.net/nzakas/extreme-javascript-compression-with-yui-compressor" title="Extreme JavaScript Compression With YUI Compressor">Extreme JavaScript Compression With YUI Compressor</a><object style="margin:0px" width="425" height="355"><param name="movie" value="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=extreme-js-compression-with-yui-compressor-090629231714-phpapp02&stripped_title=extreme-javascript-compression-with-yui-compressor" /><param name="allowFullScreen" value="true"/><param name="allowScriptAccess" value="always"/><embed src="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=extreme-js-compression-with-yui-compressor-090629231714-phpapp02&stripped_title=extreme-javascript-compression-with-yui-compressor" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="355"></embed></object><div style="font-size:11px;font-family:tahoma,arial;height:26px;padding-top:2px;">View more <a style="text-decoration:underline;" href="http://www.slideshare.net/">presentations</a> from <a style="text-decoration:underline;" href="http://www.slideshare.net/nzakas">Nicholas Zakas</a>.</div></div>
+

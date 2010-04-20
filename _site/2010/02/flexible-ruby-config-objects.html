@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>mjijackson.com &raquo; Flexible Ruby Config Objects</title>
+<meta name="description" content="Web development and design on the Mac, by Michael J. I. Jackson">
+<meta name="keywords" content="Ruby, JavaScript, PHP, HTML, CSS, web, web development, web design, Mac">
+<meta name="viewport" content="width=800">
+<link rel="alternate" type="application/atom+xml" href="/index.xml">
+<link rel="stylesheet" type="text/css" media="all" href="/css/reset.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/style.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/pre.css">
+</head>
+
+<body>
+
+<div id="wrapper">
+    <ul id="nav">
+        
+        <li class="nav-title"><a class="selected" href="/">MJIJACKSON</a></li>
+        <li class="nav-feed"><a href="/index.xml" title="Subscribe to the feed">FEED</a></li>
+        <li class="nav-code"><a href="http://github.com/mjijackson">CODE</a></li>
+        <li class="nav-about"><a href="/about">ABOUT</a></li>
+    </ul>
+    <div id="body">
+    <div class="post">
+    <div class="post-meta">
+        <h2>Flexible Ruby Config Objects</h2>
+        <div class="post-date">Tuesday, 09 Feb 2010</div>
+        <div class="post-tags">
+        <a title="All posts tagged ruby" href="/tag/ruby">#ruby</a>
+        </div>
+    </div>
+    <div class="post-body">
+    <p>In many Ruby applications there exists a global &ldquo;configuration&rdquo; object that is used to store application-wide data. For example, <a href="http://capify.org/">Capistrano</a> uses an instance of <a href="http://github.com/capistrano/capistrano/blob/master/lib/capistrano/configuration.rb">Capistrano::Configuration</a> to load recipe tasks and keep track of recipe variables. <a href="http://rubyonrails.org/">Rails</a> also uses a configuration object in the <code>ActiveSupport</code> module that takes the form of a <a href="http://github.com/rails/rails/blob/master/activesupport/lib/active_support/ordered_options.rb">glorified Hash</a>.</p>
+
+<p>Using a configuration object such as these helps to keep application settings globally accessible without polluting the global namespace. They can also provide some nice syntactic sugar to mask the sometimes clumsy or verbose accessor methods of native <code>Hash</code> and/or <code>Array</code> objects.</p>
+
+<p>In my work, there is a pattern that I end up using a lot for these kinds of objects. This won&rsquo;t be anything new to the experienced Ruby programmer, but it should provide some insight for a beginner. The pattern looks like this:</p>
+
+<pre><code>class Config
+
+  def initialize(data={})
+    @data = {}
+    update!(data)
+  end
+
+  def update!(data)
+    data.each do |key, value|
+      self[key] = value
+    end
+  end
+
+  def [](key)
+    @data[key.to_sym]
+  end
+
+  def []=(key, value)
+    if value.class == Hash
+      @data[key.to_sym] = Config.new(value)
+    else
+      @data[key.to_sym] = value
+    end
+  end
+
+  def method_missing(sym, *args)
+    if sym.to_s =~ /(.+)=$/
+      self[$1] = args.first
+    else
+      self[sym]
+    end
+  end
+
+end
+</code></pre>
+
+<p>This class is basically a wrapper for a <code>Hash</code> object that is kept internally as the instance variable <code>@data</code>. Below is some code to demonstrate how it can be used.</p>
+
+<pre><code>config = Config.new
+config.database = 'database_name'
+config.username = 'user'
+config.db_hosts = {
+  'sj'  =&gt; 'sanjose.example.com',
+  'ny'  =&gt; 'newyork.example.com'
+}
+
+config.username         # "user"
+config.db_hosts.ny      # "newyork.example.com"
+</code></pre>
+
+<p>When you use an object similar to the one above, you can completely forget about how you stored the data (was that a symbol or a string that you used for the key in your Hash?) and simply access all properties via the dot syntax. The advantage to using this class over something like <a href="http://ruby-doc.org/stdlib/libdoc/ostruct/rdoc/classes/OpenStruct.html">OpenStruct</a> is that you can access nested hashes the same as you would use any other variable. This makes the class especially well suited for accessing nested structures like the kinds you might find in a YAML configuration file.</p>
+
+<pre><code>yaml_data = "
+---
+database: mydb
+auth:
+  user: myuser
+  pass: mypass
+"
+
+require 'yaml'
+config = Config.new(YAML.load(yaml_data))
+
+config.auth.user        # "myuser"
+</code></pre>
+
+        <div class="post-foot">
+            <a href="/2010/02/flexible-ruby-config-objects" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
+            
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+
+    </div>
+    <div id="foot">
+        <p>Copyright &copy; 2010 Michael J. I. Jackson. &nbsp; <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> <a href="/index.xml" title="Subscribe to the feed">ATOM</a></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-998116-6");
+pageTracker._trackPageview();
+}catch(err){}
+</script>
+
+</body>
+
+</html>

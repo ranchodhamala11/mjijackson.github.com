@@ -1,0 +1,14 @@
+---
+title: PHP 5.3 Released
+author: Michael J. I. Jackson
+published: 2009-06-30 07:41
+updated: 2009-06-30 07:41
+tags: [php]
+alt: http://www.php.net/archive/2009.php#id2009-06-30-1
+---
+
+PHP 5.3 is out. Really looking forward to finally being able to use [late static bindings][lsb], [closures][clo], and the new [i18n extension][i18n].
+
+[lsb]: http://php.net/lsb
+[clo]: http://php.net/closures
+[i18n]: http://php.net/intl

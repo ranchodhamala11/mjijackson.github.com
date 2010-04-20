@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:base="http://mjijackson.com/" xml:lang="en-us">
+  <title>mjijackson.com</title>
+  <subtitle>Web development and design on the Mac, by Michael J. I. Jackson</subtitle>
+  <link rel="self" type="application/atom+xml" href="http://mjijackson.com/index.xml"/>
+  <link rel="alternate" type="text/html" href="http://mjijackson.com/"/>
+  <id>http://mjijackson.com/</id>
+  <updated>2010-04-08T16:00:00-06:00</updated>
+  <rights>Copyright &#169; 2008-2010, Michael J. I. Jackson</rights>
+  <entry>
+    <title>Ruby Config Objects Revisited</title>
+    <id>tag:mjijackson.com,2010-04-08:/2010/04/config-revisited</id>
+    <link rel="alternate" type="text/html" href="/2010/04/config-revisited"/>
+    <published>2010-04-08T16:00:00-06:00</published>
+    <updated>2010-04-08T16:00:00-06:00</updated>
+    <author>
+      <name>Michael Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>Since writing about <a href="/2010/02/flexible-ruby-config-objects">Ruby configuration objects</a> a few months ago, I&rsquo;ve
+done quite a bit of hacking on my original <code>Config</code> class. My main issue with
+it is that it&rsquo;s basically serving as a wrapper for a Hash, but it&rsquo;s a foreign
+interface. In other words, if you hand a Config object to another developer,
+he&rsquo;s going to have to look up the API before he can use it. But that defeats
+the purpose for writing it in the first place.</p>
+
+<p>The whole idea was to be as flexible as possible, so that configuration objects
+would be instantly usable and familiar. I don&rsquo;t want anyone (including myself)
+to have to think about using the object. It should be easy to use and follow
+the <a href="http://en.wikipedia.org/wiki/Principle_of_least_astonishment">principle of least surprise</a> as closely as possible.</p>
+
+<p>Also, configuration objects should have powerful methods that allow users to
+iterate over them, inspect them easily, and merge and compare them with other
+objects. Obviously <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a> provides lots of built-in methods for doing
+this sort of thing, but it&rsquo;s not as flexible as I&rsquo;d like it to be.</p>
+
+<p>The solution? <a href="http://github.com/mjijackson/symboltable">SymbolTable</a>.</p>
+
+<p>SymbolTable is a much more generalized version of my original Config object
+that actually subclasses <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a>. With all of the nice methods of Hash
+already built-in, a SymbolTable object becomes much more powerful than its
+Config predecessor and immediately usable.</p>
+
+<pre><code>require 'symboltable'
+
+t = SymbolTable.new
+
+# Lots of convenient accessor methods
+t[:a] = 1
+t[:a]       # =&gt; 1
+t['a']      # =&gt; 1
+t.a         # =&gt; 1
+t.a = 5
+t[:a]       # =&gt; 5
+
+# Functions just like a Hash
+t.sort.each do |key, value|
+  puts "Key #{key} has value #{value}"
+end
+
+# You can even merge with another SymbolTable
+b = SymbolTable.new
+b[:b] = 'hi'
+t.merge!(b)
+</code></pre>
+
+<p>Configuration objects are just one excellent use case for such an object. To
+install the code, use [RubyGems][rubygems].</p>
+
+<pre><code>$ sudo gem install symboltable
+</code></pre>
+
+<p>Check out the project on <a href="http://github.com/mjijackson/symboltable">GitHub</a> for more information.</p>
+]]>
+    </content>
+  </entry>
+  <entry>
+    <title>Shadowbox 3.0</title>
+    <id>tag:mjijackson.com,2010-02-20:/2010/02/shadowbox-3-0</id>
+    <link rel="alternate" type="text/html" href="/2010/02/shadowbox-3-0"/>
+    <published>2010-02-20T21:00:00-07:00</published>
+    <updated>2010-02-20T21:00:00-07:00</updated>
+    <author>
+      <name>Michael Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>Last week I pushed out some major updates to my most well-known piece of work to date, <a href="http://shadowbox-js.com/">Shadowbox</a>. This update finally brought version 3 of the code out of beta and into a much more robust and ready state. Overall I&rsquo;m very happy with the release. It took much longer than I expected (for a lot of different reasons), but the time it took just helped to produce a better product in the end.</p>
+
+<p>In this post I hope to reveal some of the steps I took to improve the code base and some of the gotchas that developers who are experienced with the library might encounter when upgrading to the latest version of the code. If you run into any snags that are not outlined in this post, please let me know so I can consider making further adjustments to this post and/or the <a href="http://shadowbox-js.com/usage.html">documentation</a> to clear up any confusion.</p>
+
+<h2>Initialization</h2>
+
+<p>The 3.0 beta expected the developer to specify some dependencies in <code>Shadowbox.init</code> if they were different from the defaults. These included the players, language, and adapter to use. The script would then check these settings and load any needed files by appending <code>&lt;script&gt;</code> tags to the head of the document. However, many users had trouble understanding these settings and couldn&rsquo;t get the script to work properly as a result. This often happened when a user desired to play a certain type of content and neglected to load the appropriate player classes during initialization.</p>
+
+<p>This behavior has been modified in the final version of 3.0. All player, language, and adapter dependencies are now specified when you create your own <a href="http://shadowbox-js.com/download.html">custom build</a> of the code. Instead of being requested on every page load, all necessary files are compiled into the code up front. This change should make it much easier for users who are not familiar with the code to get it up and running quickly.</p>
+
+<p>An added benefit of compiling everything into one file up front is that no additional HTTP requests need to be made to the server for dependency files. This should significantly speed up your page load times and decrease the load on your server.</p>
+
+<h2>Setup</h2>
+
+<p>The ability to pass in options via markup has been removed from the script entirely. There are several reasons for this. The first is that putting a JSON object into HTML markup is just not good practice. When I first invented that feature, I thought it would be neat if someone were able to use Shadowbox using only HTML markup, and without touching JavaScript. So I added the ability to put a JSON hash in the page markup and <code>eval</code> it at runtime. However, in retrospect it seems a bit silly. After all, someone who is not comfortable using JavaScript certainly wouldn&rsquo;t be comfortable putting JSON objects into their HTML!</p>
+
+<p>The second reason is related to the first, and it is simply the use of <code>eval</code> on text that is included as part of the page. With the growing popularity of <a href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS</a> and similar malicious attacks on website markup, using <code>eval</code> presents a major security vulnerability. I know that probably could have constructed some elaborate workaround using Crockford&rsquo;s <a href="http://www.json.org/json2.js">json.js</a>, but I didn&rsquo;t consider the extra weight worth it for a feature that was clumsy in the first place.</p>
+
+<p>Now you will still be able to use custom options for your links, but you need to do it via <code>Shadowbox.setup</code> (several examples are available in <a href="http://shadowbox-js.com/assets/demo.js">demo.js</a>, the same file that is used to run the examples on the Shadowbox website.) Setting up your links via HTML markup still works, just not with custom options.</p>
+
+<h2>Hacks</h2>
+
+<p>Another major step I took in this latest release was to eliminate the number of hacks in the code. The web by nature is one big hack, and client-side programming can get especially hacky especially with a product as complex as Shadowbox. However, I believe that it&rsquo;s only good to resort to hacks when you need them and only after exhausting all possible (and reasonable) alternatives.</p>
+
+<p>One hack that I wanted to eliminate completely was the use of a &ldquo;<a href="http://msdn.microsoft.com/en-us/library/ms537634.aspx">dynamic property</a>&rdquo; in the CSS code. This code was used to dynamically calculate the height of the viewport in browsers that do not have support for <code>position: fixed</code> like IE6 (there&rsquo;s a bit more to it, but that&rsquo;s the basic gist of it.) However, it never sat particularly well with me. I&rsquo;m happy to say that I was able to modify the code to not use any proprietary CSS properties in version 3.0 final. It now feels much cleaner, and it&rsquo;s a lot more future-proof.</p>
+
+<p>One more hack that I tried to eliminate is the use of <a href="http://www.quirksmode.org/js/detect.html">browser sniffing via the user-agent string</a>. While I wasn&rsquo;t able to completely eliminate this (yet), I&rsquo;m down to only a few instances of it now. The code relies a lot more on object/feature detection instead. This is also much more future-proof and should go a long way in helping to support as many browsers as possible.</p>
+
+<h2>Speed</h2>
+
+<p>The entire codebase has been streamlined to run faster and more efficiently in every browser without sacrificing any of the existing functionality. I ran quite a few tests to determine the most efficient way to structure the CSS and conduct the animations while keeping memory usage down. In the process I squashed several memory leaks in IE6 that caused that particular browser to slow down after reloading the page several times. In short, the whole experience should be smoother and more consistent for users, no matter what platform they are on.</p>
+
+<h2>Source</h2>
+
+<p>The new home for the Shadowbox code is <a href="http://github.com/mjijackson/shadowbox">on GitHub</a>. Although the code is not released under an open source license, I have always made the source available for debugging and learning purposes and I intend to keep it that way. Please report any bugs that you may find on the new <a href="http://github.com/mjijackson/shadowbox/issues">issue tracker</a>.</p>
+
+<p>I hope you enjoy the latest release of Shadowbox.</p>
+]]>
+    </content>
+  </entry>
+  <entry>
+    <title>Flexible Ruby Config Objects</title>
+    <id>tag:mjijackson.com,2010-02-09:/2010/02/flexible-ruby-config-objects</id>
+    <link rel="alternate" type="text/html" href="/2010/02/flexible-ruby-config-objects"/>
+    <published>2010-02-09T21:59:00-07:00</published>
+    <updated>2010-02-09T21:59:00-07:00</updated>
+    <author>
+      <name>Michael Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>In many Ruby applications there exists a global &ldquo;configuration&rdquo; object that is used to store application-wide data. For example, <a href="http://capify.org/">Capistrano</a> uses an instance of <a href="http://github.com/capistrano/capistrano/blob/master/lib/capistrano/configuration.rb">Capistrano::Configuration</a> to load recipe tasks and keep track of recipe variables. <a href="http://rubyonrails.org/">Rails</a> also uses a configuration object in the <code>ActiveSupport</code> module that takes the form of a <a href="http://github.com/rails/rails/blob/master/activesupport/lib/active_support/ordered_options.rb">glorified Hash</a>.</p>
+
+<p>Using a configuration object such as these helps to keep application settings globally accessible without polluting the global namespace. They can also provide some nice syntactic sugar to mask the sometimes clumsy or verbose accessor methods of native <code>Hash</code> and/or <code>Array</code> objects.</p>
+
+<p>In my work, there is a pattern that I end up using a lot for these kinds of objects. This won&rsquo;t be anything new to the experienced Ruby programmer, but it should provide some insight for a beginner. The pattern looks like this:</p>
+
+<pre><code>class Config
+
+  def initialize(data={})
+    @data = {}
+    update!(data)
+  end
+
+  def update!(data)
+    data.each do |key, value|
+      self[key] = value
+    end
+  end
+
+  def [](key)
+    @data[key.to_sym]
+  end
+
+  def []=(key, value)
+    if value.class == Hash
+      @data[key.to_sym] = Config.new(value)
+    else
+      @data[key.to_sym] = value
+    end
+  end
+
+  def method_missing(sym, *args)
+    if sym.to_s =~ /(.+)=$/
+      self[$1] = args.first
+    else
+      self[sym]
+    end
+  end
+
+end
+</code></pre>
+
+<p>This class is basically a wrapper for a <code>Hash</code> object that is kept internally as the instance variable <code>@data</code>. Below is some code to demonstrate how it can be used.</p>
+
+<pre><code>config = Config.new
+config.database = 'database_name'
+config.username = 'user'
+config.db_hosts = {
+  'sj'  =&gt; 'sanjose.example.com',
+  'ny'  =&gt; 'newyork.example.com'
+}
+
+config.username         # "user"
+config.db_hosts.ny      # "newyork.example.com"
+</code></pre>
+
+<p>When you use an object similar to the one above, you can completely forget about how you stored the data (was that a symbol or a string that you used for the key in your Hash?) and simply access all properties via the dot syntax. The advantage to using this class over something like <a href="http://ruby-doc.org/stdlib/libdoc/ostruct/rdoc/classes/OpenStruct.html">OpenStruct</a> is that you can access nested hashes the same as you would use any other variable. This makes the class especially well suited for accessing nested structures like the kinds you might find in a YAML configuration file.</p>
+
+<pre><code>yaml_data = "
+---
+database: mydb
+auth:
+  user: myuser
+  pass: mypass
+"
+
+require 'yaml'
+config = Config.new(YAML.load(yaml_data))
+
+config.auth.user        # "myuser"
+</code></pre>
+]]>
+    </content>
+  </entry>
+  <entry>
+    <title>How to Install Ruby 1.9 on CentOS 5</title>
+    <id>tag:mjijackson.com,2010-02-07:/2010/02/ruby-1.9-centos-5</id>
+    <link rel="alternate" type="text/html" href="/2010/02/ruby-1.9-centos-5"/>
+    <published>2010-02-07T10:10:00-07:00</published>
+    <updated>2010-02-07T10:10:00-07:00</updated>
+    <author>
+      <name>Michael Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>CentOS is a great Linux distro with possibly the worst selection of up-to-date packages. I love the ease of use of CentOS and the close ties to RedHat, but using it often means that I need to compile the libraries I need from source. When setting up a new VPS recently, these are the steps I took to install the latest version of Ruby.</p>
+
+<pre><code>$ sudo yum groupinstall 'Development Tools'
+$ sudo yum install readline-devel
+$ cd /usr/local/src
+$ wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.1-p376.tar.gz
+$ tar xzvf ruby-1.9.1-p376.tar.gz
+$ cd ruby-1.9.1-p376
+$ ./configure &amp;&amp; make
+$ sudo make install
+</code></pre>
+
+<p>Everything you need is in the development tools, except for readline-devel.</p>
+]]>
+    </content>
+  </entry>
+  <entry>
+    <title>Create More Value Than You Capture</title>
+    <id>tag:mjijackson.com,2009-11-04:/2009/11/create-more-value-than-you-capture</id>
+    <link rel="alternate" type="text/html" href="http://radar.oreilly.com/2009/01/work-on-stuff-that-matters-fir.html"/>
+    <published>2009-11-04T19:51:00-07:00</published>
+    <updated>2009-11-04T19:51:00-07:00</updated>
+    <author>
+      <name>Michael Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>This article is a bit dated by now, but I only just got the chance to read it today thanks to a friend of mine who <a href="http://twitter.com/kylemathews/status/5426636750">pointed it out</a> to me.</p>
+
+<p>Tim O'Reilly:</p>
+
+<blockquote><p>It&rsquo;s a matter of balance. Every business needs to pay attention to its bottom line; every individual needs to put a roof over his or her head and provide food for loved ones. But take a look inside: how much are you thinking about yourself and what you might gain, versus what you might create?</p></blockquote>
+
+<p>Read the entire article for an interesting perspective on exactly why we should all be doing what we do.</p>
+<p>[<a href="/2009/11/create-more-value-than-you-capture" title="Permalink">Permalink</a>]</p>]]>
+    </content>
+  </entry>
+  <entry>
+    <title>The Stomach for Risk</title>
+    <id>tag:mjijackson.com,2009-08-07:/2009/08/coudal</id>
+    <link rel="alternate" type="text/html" href="http://www.designglut.com/2009/08/jim-coudal-of-coudal-partners/"/>
+    <published>2009-08-07T08:50:00-06:00</published>
+    <updated>2009-08-07T08:50:00-06:00</updated>
+    <author>
+      <name>Michael J. I. Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>Jim Coudal, of <a href="http://www.coudal.com/">Coudal Partners</a>:</p>
+
+<blockquote><p>I don&rsquo;t know what&rsquo;s next! It&rsquo;s kind of a joke, but we&rsquo;re proudly &ldquo;without business plan&rdquo; in our 13th year. We&rsquo;ve had a lot of things not work, and that&rsquo;s OK too. If it&rsquo;s a good idea and it gets you excited, try it, and if it bursts into flames, that&rsquo;s going to be exciting too. People always ask, &ldquo;What is your greatest failure?&rdquo; I always have the same answer – We&rsquo;re working on it right now, it&rsquo;s gonna be awesome!</p></blockquote>
+
+<p>An interesting and inspiring read for anyone interested in doing business for themselves.</p>
+<p>[<a href="/2009/08/coudal" title="Permalink">Permalink</a>]</p>]]>
+    </content>
+  </entry>
+  <entry>
+    <title>Can You Trust TechCrunch?</title>
+    <id>tag:mjijackson.com,2009-08-01:/2009/08/can-you-trust-techcrunch</id>
+    <link rel="alternate" type="text/html" href="http://www.kullin.net/2009/08/can-you-trust-techcrunch-enough-to.html"/>
+    <published>2009-08-01T12:30:00-06:00</published>
+    <updated>2009-08-01T12:30:00-06:00</updated>
+    <author>
+      <name>Michael J. I. Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>Hans Kullin:</p>
+
+<blockquote><p>So instead of doing the right thing and using the input from readers to improve a poor article, TechCrunch choses to leave incorrect statements up on their site. Instead of subscribing to Dan Gillmor&rsquo;s view that &ldquo;my readers know more than I do&rdquo;, TechCrunch apparently thinks that their readers are idiots (and that Swedes can&rsquo;t read).</p></blockquote>
+
+<p>Incidents like this one definitely make me pause and think before linking to anything from <a href="http://www.techcrunch.com/">TechCrunch</a>. (Via <a href="http://news.ycombinator.com/item?id=736460">Hacker News</a>.)</p>
+<p>[<a href="/2009/08/can-you-trust-techcrunch" title="Permalink">Permalink</a>]</p>]]>
+    </content>
+  </entry>
+  <entry>
+    <title>The PC Question</title>
+    <id>tag:mjijackson.com,2009-07-31:/2009/07/the-pc-question</id>
+    <link rel="alternate" type="text/html" href="/2009/07/the-pc-question"/>
+    <published>2009-07-31T15:00:00-06:00</published>
+    <updated>2009-07-31T15:00:00-06:00</updated>
+    <author>
+      <name>Michael J. I. Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>In the past year I&rsquo;ve attended several conferences directly targeted at the web developer community.  At each one, I&rsquo;ve been less and less surprised at the large number of Macs in the audience. Of course, everyone at a developer conference has their laptop out during all of the talks, so it was pretty easy to take a survey of Mac vs. PC users.</p>
+
+<p>The most recent conference I attended was the Mountain West Ruby Conference held in Salt Lake City back in March. It would be a conservative estimate to say that at least 90% of the audience had a Mac. Conference attendee <a href="http://www.agilerubytester.com/">Jim Knowlton</a> pretty <a href="http://twitter.com/jimknowlton/status/1327365193">perfectly summed up</a> the sentiment one might have when viewing the audience from the stage.</p>
+
+<p>It truly is remarkable how the Mac has won over so many developers in such a short period of time. Just three years ago I clearly remember walking in on the first day at the Information Systems program at BYU and being the <em>only one</em> there (besides the professor, <a href="http://warp.byu.edu/site/?q=node/1">Dr. Albrecht</a>) with a Mac. Of course, not everyone there was setting out to be a computer programmer. However, certainly everyone in that program could be considered a fairly &ldquo;technical&rdquo; person. Now, you can hardly spot an Inspiron or ThinkPad at a developer conference.</p>
+
+<p>It all just adds a bit more credence (as if any was needed) to <a href="http://daringfireball.net/">John Gruber</a>&rsquo;s statement <a href="http://daringfireball.net/2009/07/microsofts_long_slow_decline">yesterday</a> about the platform of choice for computer nerds:</p>
+
+<blockquote><p>People who love computers overwhelmingly prefer to use a Mac today. Microsoft&rsquo;s
+core problem is that they have lost the hearts of computer enthusiasts. Regular
+people don&rsquo;t think about their choice of computer platform in detail and with
+passion like nerds do because, duh, they are not nerds. But nerds are leading
+indicators.</p></blockquote>
+
+<p>Later in the same article, Gruber addresses <a href="http://www.microsoft.com/presspass/exec/elop/07-15-09WPC2009.mspx">some remarks</a> made by former WalMart executive and current Microsoft COO <a href="http://www.microsoft.com/presspass/exec/turner/">Kevin Turner</a> at Microsoft&rsquo;s Worldwide Partner Conference earlier this month. On the subject of competition with Apple, Turner said:</p>
+
+<blockquote><p>I pulled this out of my Sunday newspaper. I have an old habit because I came
+from retail looking at the Sunday tabs and circulars that are in newspapers.
+This is straight out of my paper last Sunday. This is a comparison out of a
+leading electronics retailer that you can get a 13.3-inch Macbook for US$1199
+from that retailer. Guess what. That same retailer, you can get the same PC
+with more RAM, a bigger hard drive, and almost a three-inch bigger screen for
+US$649. What an incredible opportunity.</p>
+
+<p>&hellip;</p>
+
+<p>This is out of last Sunday&rsquo;s paper, the Apple tax. It&rsquo;s getting out. And when
+we put Windows 7 in there, which we&rsquo;ve got coming out in October, what an
+incredible opportunity for us to fight back. And it feels really good to be on
+the offensive here. And we know we&rsquo;ve got plenty of work to do. We don&rsquo;t have
+it all figured out. But I want you to know, ladies and gentlemen, we&rsquo;re doing
+stuff and we&rsquo;re in the game and continuing to take some of these hard market
+share opportunities head on and compete because it&rsquo;s a test of will, as I said.</p></blockquote>
+
+<p>This kind of WalMart thinking is not going to work for Microsoft for one simple reason: they are not in the business of turning profits on volume. If they were, you&rsquo;d be able to pick up a copy of Windows Vista WalMart-style, for $10. No, Microsoft definitely cares about their margins just like most other tech companies do.</p>
+
+<p>The problem is that when they try and compete in the same price range as Apple, <a href="http://www.betanews.com/joewilcox/article/Apple-has-91-of-market-for-1000-PCs-says-NPD/1248313624">they lose</a>. It&rsquo;s not that they&rsquo;re not trying. I can definitely buy a PC over US$1000 if I wanted to. The products are already brought to market. Microsoft&rsquo;s problem is that when prices get into that range, the vast majority of customers run a comparison and for whatever reason they pick Apple.</p>
+
+<p>I interpret Turner&rsquo;s statement above as an admission of defeat in the high margin price category. He&rsquo;s basically saying that PC manufacturers make a superior product, but they cannot sell it for as much as Apple can sell one of theirs. He&rsquo;s saying that PC manufacturers must incur greater costs from the better components they are using without the benefit of collecting the premium.</p>
+
+<p>The question he should be asking himself is this: If Apple really is selling inferior products, why can&rsquo;t I charge more than they charge? If PC&rsquo;s really are superior products, why don&rsquo;t we get to charge a premium?</p>
+
+<p>It&rsquo;s not difficult. This is Business Management 101 type stuff. This is the question that PC manufacturers need to answer if they want to compete with Apple in the high margin space. It&rsquo;s a tough question to ask, because the answer requires a lot of creativity and change to the way they&rsquo;re currently doing things. It will require a shift from resting on their laurels to putting some more polish on their products. Given this kind of talk from guys like Turner, I wouldn&rsquo;t hold my breath.</p>
+
+<p>I&rsquo;m heading out to the <a href="http://rubyhoedown.com/">Ruby Hoedown</a> in Nashville at the end of August. And for some reason, I suspect I&rsquo;ll see another slew of Macs in the audience.</p>
+]]>
+    </content>
+  </entry>
+  <entry>
+    <title>Take Back the Beep</title>
+    <id>tag:mjijackson.com,2009-07-31:/2009/07/take-back-the-beep</id>
+    <link rel="alternate" type="text/html" href="http://pogue.blogs.nytimes.com/2009/07/30/the-mandatory-15-second-voicemail-instructions/"/>
+    <published>2009-07-31T10:42:00-06:00</published>
+    <updated>2009-07-31T10:42:00-06:00</updated>
+    <author>
+      <name>Michael J. I. Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>David Pogue:</p>
+
+<blockquote><p>These messages are outrageous for two reasons. First, they waste your time.
+Good heavens: it’s 2009. WE KNOW WHAT TO DO AT THE BEEP.</p>
+
+<p>Do we really need to be told to hang up when we’re finished!? Would anyone,
+ever, want to &ldquo;send a numeric page?&rdquo; Who still carries a pager, for heaven’s
+sake? Or what about “leave a callback number?” We can SEE the callback number
+right on our phones!</p>
+
+<p>Second, we&rsquo;re PAYING for these messages. These little 15-second waits add
+up–bigtime. If Verizon&rsquo;s 70 million customers leave or check messages twice
+a weekday, Verizon rakes in about $620 million a year. That’s your money.
+And your time: three hours of your time a year, just sitting there listening
+to the same message over and over again every year.</p></blockquote>
+
+<p>Please keep ranting David! I have expressed my frustration countless times to those who know me on this very issue. It&rsquo;s absurd that I&rsquo;m still listening to such instructional messages every time I call someone in 2009. This is a very good example of the telecommunications companies following one another around like sheep instead of thinking for themselves.</p>
+
+<p>All it takes is one person to stand up in a meeting and say, &ldquo;Why in the world do we still have those silly messages whenever someone calls one of our customers?&rdquo; (Via <a href="http://daringfireball.net/linked/2009/07/30/pogue-beep">John Gruber</a>.)</p>
+<p>[<a href="/2009/07/take-back-the-beep" title="Permalink">Permalink</a>]</p>]]>
+    </content>
+  </entry>
+  <entry>
+    <title>Misusing Quotes</title>
+    <id>tag:mjijackson.com,2009-07-27:/2009/07/misusing-quotes</id>
+    <link rel="alternate" type="text/html" href="http://sethgodin.typepad.com/seths_blog/2009/07/am-i-the-only-one-distracted-by-apostrophes-and-weird-quoting.html"/>
+    <published>2009-07-27T10:40:00-06:00</published>
+    <updated>2009-07-27T10:40:00-06:00</updated>
+    <author>
+      <name>Michael J. I. Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>Seth Godin:</p>
+
+<blockquote><p>When I get a manuscript or see a sign that misuses its and it&rsquo;s and
+<a href="http://www.unnecessaryquotes.com/">quotes</a>, I immediately assume that the person who created it is stupid.</p>
+
+<p>I understand that this is a mistake on my part. They&rsquo;re not necessarily
+totally stupid, they&rsquo;re just stupid about apostrophes.</p></blockquote>
+
+<p>This is something I&rsquo;ve always been annoyed by. It really diminishes the credibility of the organization behind the message.</p>
+<p>[<a href="/2009/07/misusing-quotes" title="Permalink">Permalink</a>]</p>]]>
+    </content>
+  </entry>
+</feed>

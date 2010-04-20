@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>mjijackson.com &raquo; Type-safe Arrays Using PHP's SPL</title>
+<meta name="description" content="Web development and design on the Mac, by Michael J. I. Jackson">
+<meta name="keywords" content="Ruby, JavaScript, PHP, HTML, CSS, web, web development, web design, Mac">
+<meta name="viewport" content="width=800">
+<link rel="alternate" type="application/atom+xml" href="/index.xml">
+<link rel="stylesheet" type="text/css" media="all" href="/css/reset.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/style.css">
+<link rel="stylesheet" type="text/css" media="all" href="/css/pre.css">
+</head>
+
+<body>
+
+<div id="wrapper">
+    <ul id="nav">
+        
+        <li class="nav-title"><a class="selected" href="/">MJIJACKSON</a></li>
+        <li class="nav-feed"><a href="/index.xml" title="Subscribe to the feed">FEED</a></li>
+        <li class="nav-code"><a href="http://github.com/mjijackson">CODE</a></li>
+        <li class="nav-about"><a href="/about">ABOUT</a></li>
+    </ul>
+    <div id="body">
+    <div class="post">
+    <div class="post-meta">
+        <h2>Type-safe Arrays Using PHP's SPL</h2>
+        <div class="post-date">Monday, 08 Dec 2008</div>
+        <div class="post-tags">
+        <a title="All posts tagged php" href="/tag/php">#php</a> <a title="All posts tagged spl" href="/tag/spl">#spl</a>
+        </div>
+    </div>
+    <div class="post-body">
+    <p>For a recent project of mine, I needed to create a type-safe collection of objects in PHP. However, normal PHP <a href="http://php.net/array">arrays</a> don&rsquo;t support this kind of behavior. I could create a class to do the job, but I&rsquo;ll have to do a little work to make it function like a real array.</p>
+
+<p>My first try looked something like this:</p>
+
+<pre><code>class Collection
+{
+
+    private $type;
+    private $objects = array();
+
+    public function __construct($type)
+    {
+        $this-&gt;type = $type;
+    }
+
+    public function add($obj)
+    {
+        if (!($obj instanceof $this-&gt;type)) {
+            throw new Exception('Wrong type!');
+        }
+        $this-&gt;objects[] = $obj;
+    }
+
+    public function get($offset)
+    {
+        return isset($this-&gt;objects[$offset])
+            ? $this-&gt;objects[$offset]
+            : null;
+    }
+
+}
+</code></pre>
+
+<p>This class is obviously stripped of some of the nice properties of arrays. However, we do have the ability to set a class <code>$type</code> variable that can be used to check the types of new objects, and that&rsquo;s the most important thing that I need to accomplish with my collection.</p>
+
+<pre><code>$collection = new Collection('MyClass');
+$collection-&gt;add('string'); // Exception!
+</code></pre>
+
+<h2>Clunky Access</h2>
+
+<p>We could continue with the above class and add <code>unset</code>, <code>count</code>, and <code>remove</code> methods, but then we&rsquo;d be dealing with this clunky syntax:</p>
+
+<pre><code>$mc = new MyClass();
+$collection-&gt;add($mc);
+$collection-&gt;get(0); // $mc
+</code></pre>
+
+<p>I&rsquo;d like something more convenient, like the array access operators that are so familiar:</p>
+
+<pre><code>$collection[] = $mc;
+</code></pre>
+
+<p>I&rsquo;d also like to be able to use this class in a <code>foreach</code> loop. In order to achieve these objectives, we&rsquo;ll need some more powerful tools.</p>
+
+<h2>Borrowing a Wheel</h2>
+
+<p>If you haven&rsquo;t yet upgraded to PHP 5, you need to. Once you do, you&rsquo;ll be able to take advantage of the <a href="http://www.php.net/~helly/php/ext/spl/">Standard PHP Library</a> (SPL). From the SPL docs:</p>
+
+<blockquote><p>SPL is a collection of interfaces and classes that are meant to solve standard
+problems and implements some efficient data access interfaces and classes.</p></blockquote>
+
+<p>These interfaces let you supercharge your classes with some very nice properties, as we shall see.</p>
+
+<h2>Array-like Access</h2>
+
+<p>Using SPL, we can give array-like access operators to any class we create. In order to accomplish this, we&rsquo;ll need to get rid of our old methods and implement the <code>ArrayAccess</code> <a href="http://www.php.net/~helly/php/ext/spl/interfaceArrayAccess.html">interface</a> instead.</p>
+
+<pre><code>class Collection implements ArrayAccess
+{
+
+    private $type;
+    private $objects = array();
+
+    public function __construct($type)
+    {
+        $this-&gt;type = $type;
+    }
+
+    public function offsetExists($offset)
+    {
+        return isset($this-&gt;objects[$offset]);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this-&gt;offsetExists($offset)
+            ? $this-&gt;objects[$offset]
+            : null;
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if (!($value instanceof $this-&gt;type)) {
+            throw new Exception('Wrong type!');
+        }
+        if (is_null($offset)) {
+            $offset = count($this-&gt;objects);
+        }
+        $this-&gt;objects[$offset] = $value;
+    }
+
+    public function offsetUnset($offset)
+    {
+        if (is_int($offset)) {
+            array_splice($this-&gt;objects, $offset, 1);
+        } else {
+            unset($this-&gt;objects[$offset]);
+        }
+    }
+
+}
+</code></pre>
+
+<p>The methods defined in <code>ArrayAccess</code> define what happens to the object when the array access operators are used. Most of the method names are self-explanatory. One trick to remember here is that when no array index is passed to <code>offsetSet</code>, you must set the index manually:</p>
+
+<pre><code>if (is_null($offset)) {
+     $offset = count($this-&gt;objects);
+}
+</code></pre>
+
+<p>Now adding objects is quick and simple:</p>
+
+<pre><code>$collection[] = $mc;
+</code></pre>
+
+<p>Another trick to remember is that when coding <code>offsetUnset</code>, you need to differentiate between numerical and string keys. If the key is an integer, you really should use <a href="http://php.net/array_splice">array_splice</a> instead of <a href="http://php.net/unset">unset</a> because this will re-index all numerical keys in the array, just as in a normal PHP array.</p>
+
+<pre><code>public function offsetUnset($offset)
+{
+    if (is_int($offset)) {
+        array_splice($this-&gt;objects, $offset, 1);
+    } else {
+        unset($this-&gt;objects[$offset]);
+    }
+}
+</code></pre>
+
+<h2>Counting the Collection</h2>
+
+<p>A nice method for arrays is the <a href="http://php.net/count">count</a> method. Luckily for us, implementing the <code>Countable</code> <a href="http://www.php.net/~helly/php/ext/spl/interfaceCountable.html">interface</a> is a trivial task:</p>
+
+<pre><code>class Collection implements Countable
+{
+
+    // ...
+
+    public function count()
+    {
+        return count($this-&gt;objects);
+    }
+
+}
+</code></pre>
+
+<p>Now counting our collection is as simple as calling <code>count</code>:</p>
+
+<pre><code>echo count($collection); // 1
+</code></pre>
+
+<h2>Traversability</h2>
+
+<p>What good is a collection without the ability to use it in a loop? Of course, you could implement a C-style loop with the methods we have now:</p>
+
+<pre><code>for ($i = 0; $i &amp;lt; count($collection); $i++) {
+    echo $collection[$i];
+}
+</code></pre>
+
+<p>However, PHP gives us a nice <a href="http://php.net/foreach">foreach</a> construct for this sort of thing. The PHP manual says that <code>foreach</code> expects an array or an object (in PHP 5). If passed an object, <code>foreach</code> will iterate over the public properties of that object. But we don&rsquo;t have any public properties!</p>
+
+<p>This is where we reach for another interface from SPL&rsquo;s bag of tricks. Implementing the <code>Iterator</code> <a href="http://www.php.net/~helly/php/ext/spl/interfaceIterator.html">interface</a> will give us just what we need. When a class implements <code>Iterator</code> it defines a set of methods that tell PHP how to use the object in iteration. The methods are fairly trivial to implement, as you can see in the following example.</p>
+
+<pre><code>class Collection implements Iterator
+{
+
+    // ...
+
+    private $key;
+
+    public function current()
+    {
+        return $this-&gt;offsetGet($this-&gt;key);
+    }
+
+    public function key()
+    {
+        return $this-&gt;key;
+    }
+
+    public function next()
+    {
+        $next = $this-&gt;current();
+        if ($next) {
+            $this-&gt;key++;
+        }
+        return $next;
+    }
+
+    public function rewind()
+    {
+        $this-&gt;key = 0;
+    }
+
+    public function valid()
+    {
+        return !is_null($this-&gt;current());
+    }
+
+}
+</code></pre>
+
+<p>The names of these methods should give you a clue as to what they are supposed to do. Most of them deal with manipulating an internal <code>$key</code> variable that behaves like an array&rsquo;s internal pointer. Now the collection really behaves like an array!</p>
+
+<pre><code>class Person
+{
+
+    private $name;
+
+    public function __construct($name)
+    {
+        $this-&gt;name = $name;
+    }
+
+    public function sayHi()
+    {
+        echo 'Hi! My name is ' . $this-&gt;name;
+    }
+
+}
+
+$collection = new Collection('Person');
+
+$collection[] = new Person('Joe');
+$collection[] = new Person('Mary');
+$collection[] = new Person('Michael');
+
+foreach ($collection as $person) {
+    $person-&gt;sayHi();
+}
+</code></pre>
+
+        <div class="post-foot">
+            <a href="/2008/12/type-safe-arrays-using-phps-spl" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
+            
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+
+    </div>
+    <div id="foot">
+        <p>Copyright &copy; 2010 Michael J. I. Jackson. &nbsp; <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> <a href="/index.xml" title="Subscribe to the feed">ATOM</a></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-998116-6");
+pageTracker._trackPageview();
+}catch(err){}
+</script>
+
+</body>
+
+</html>
