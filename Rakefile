@@ -5,10 +5,26 @@ require 'time'
 require 'builder'
 require 'rdiscount'
 
-PUBLIC = 'public'
 SOURCE = '.'
-
+PUBLIC = 'public'
 directory PUBLIC
+TAG = File.join(PUBLIC, 'tag')
+directory TAG
+
+# a list of static assets
+ASSETS = %w< css etc CNAME README robots.txt >.map {|f| File.join(SOURCE, f) }
+# a map of all URL's to their respective priorities
+SITEMAP = { '/' => 1.0, '/about' => 0.5 }
+# a map of all tags to the posts that contain that tag
+TAG_POSTS = {}
+# a map of all years and months to the posts that were published in that time
+ARCHIVE = {}
+# a list of the names of all individual post files
+POST_FILES = []
+# a list of the names of all tag/* files
+TAG_FILES = []
+# a list of the names of all archive files (posts by month and year)
+ARCHIVE_FILES = []
 
 class Page
   @dir = File.join(SOURCE, 'pages')
@@ -158,14 +174,8 @@ class Post < Page
   end
 end
 
-SITEMAP = {
-  '/'      => 1.0,
-  '/about' => 0.5
-}
-TAG_POSTS = {}
-ARCHIVE = {}
+## Preprocessor ###############################################################
 
-POST_FILES = []
 Post.all.each do |post|
   dir = File.join(PUBLIC, post.year, post.month)
   directory dir unless Rake::Task.task_defined?(dir)
@@ -195,10 +205,6 @@ Post.all.each do |post|
   ARCHIVE[post.year][post.month] << post
 end
 
-TAG = File.join(PUBLIC, 'tag')
-directory TAG
-
-TAG_FILES = []
 TAG_POSTS.each do |tag, posts|
   html = File.join(TAG, CGI.escape(tag) + ".html")
   file html => TAG do
@@ -208,7 +214,6 @@ TAG_POSTS.each do |tag, posts|
   SITEMAP['/tag/' + CGI.escape(tag)] = 0.5
 end
 
-ARCHIVE_FILES = []
 ARCHIVE.each do |year, months|
   dir = File.join(PUBLIC, year)
   directory dir
@@ -232,10 +237,13 @@ ARCHIVE.each do |year, months|
   SITEMAP["/#{year}"] = 0.5
 end
 
+## Task Definitions ###########################################################
+
 task :default => :build
 
 desc "Build the entire site"
-task :build => [:posts, :tags, :archives, :index, :about, :not_found, :feed, :sitemap, :assets]
+task :build => [:posts, :tags, :archives, :index, :about, :not_found,
+  :feed, :sitemap, :assets]
 
 desc "Build all posts"
 task :posts => POST_FILES
@@ -287,20 +295,12 @@ end
 
 desc "Copy all static assets"
 task :assets => PUBLIC do
-  %w< css etc CNAME README robots.txt >.each do |file|
-    cp_r File.join(SOURCE, file), PUBLIC
+  ASSETS.each do |file|
+    cp_r file, PUBLIC
   end
 end
 
-desc "Remove all generated files"
-task :clean do
-  rm_rf PUBLIC
-end
-
-desc "Deploy to production (from GitHub)"
-task :deploy do
-  sh %{ssh suzy 'cd /var/www/mjijackson.com && git pull'}
-end
+## Utility Functions ##########################################################
 
 def layout(name, ext="erb")
   layout_file = File.join(SOURCE, 'layouts', "#{name}.#{ext}")
