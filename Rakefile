@@ -12,7 +12,7 @@ TAG = File.join(PUBLIC, 'tag')
 directory TAG
 
 # a list of static assets
-ASSETS = %w< css etc CNAME README robots.txt >.map {|f| File.join(SOURCE, f) }
+ASSETS = %w< css etc CNAME nginx.conf README robots.txt >.map {|f| File.join(SOURCE, f) }
 # a map of all URL's to their respective priorities
 SITEMAP = { '/' => 1.0, '/about' => 0.5 }
 # a map of all tags to the posts that contain that tag
