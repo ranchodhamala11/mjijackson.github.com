@@ -180,18 +180,16 @@ Post.all.each do |post|
   dir = File.join(PUBLIC, post.year, post.month)
   directory dir unless Rake::Task.task_defined?(dir)
 
-  html = File.join(dir, post.name + '.html')
-  file html => dir do
-    make_post(post, html)
+  t = file File.join(dir, post.name + '.html') => dir do |t|
+    make_post(post, t.name)
   end
-  POST_FILES << html
+  POST_FILES << t.name
 
   # make a plain text version of posts as well
-  text = File.join(dir, post.name + '.txt')
-  file text => dir do
-    cp post.path, text
+  t = file File.join(dir, post.name + '.txt') => dir do |t|
+    cp post.path, t.name
   end
-  POST_FILES << text
+  POST_FILES << t.name
 
   #SITEMAP["/#{post.year}/#{post.month}/#{post.name}"] = 0.5
 
@@ -206,34 +204,36 @@ Post.all.each do |post|
 end
 
 TAG_POSTS.each do |tag, posts|
-  html = File.join(TAG, CGI.escape(tag) + ".html")
-  file html => TAG do
-    make_tag(posts, html, tag)
+  t = file File.join(TAG, CGI.escape(tag) + '.html') => TAG do |t|
+    make_tag(posts, t.name, tag)
   end
-  TAG_FILES << html
+  TAG_FILES << t.name
   SITEMAP['/tag/' + CGI.escape(tag)] = 0.5
 end
 
 ARCHIVE.each do |year, months|
-  dir = File.join(PUBLIC, year)
-  directory dir
   year_posts = []
+
+  year_dir = File.join(PUBLIC, year)
+  directory year_dir
 
   months.each do |month, posts|
     year_posts += posts
-    html = File.join(dir, "#{month}.html")
-    file html => dir do
-      make_archive(posts, html, year, month)
+
+    month_dir = File.join(year_dir, month)
+    directory month_dir
+
+    t = file File.join(month_dir, 'index.html') => month_dir do |t|
+      make_archive(posts, t.name, year, month)
     end
-    ARCHIVE_FILES << html
+    ARCHIVE_FILES << t.name
     SITEMAP["/#{year}/#{month}"] = 0.5
   end
 
-  html = File.join(dir, "index.html")
-  file html do
-    make_archive(year_posts, html, year)
+  t = file File.join(year_dir, 'index.html') => year_dir do |t|
+    make_archive(year_posts, t.name, year)
   end
-  ARCHIVE_FILES << html
+  ARCHIVE_FILES << t.name
   SITEMAP["/#{year}"] = 0.5
 end
 
