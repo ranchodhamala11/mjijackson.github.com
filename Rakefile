@@ -33,7 +33,7 @@ class Page
     attr_reader :dir
 
     def all
-      @all ||= Dir[File.join(@dir, '*.text')].map {|path| new(path) }
+      @all ||= Dir[File.join(@dir, '*.txt')].map {|path| new(path) }
     end
 
     def find
@@ -187,7 +187,7 @@ Post.all.each do |post|
   POST_FILES << html
 
   # make a plain text version of posts as well
-  text = File.join(dir, post.name + '.text')
+  text = File.join(dir, post.name + '.txt')
   file text => dir do
     cp post.path, text
   end
