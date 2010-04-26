@@ -2,4 +2,7 @@
 title: Not Found
 ---
 
-The page you requested cannot be found. It may have been moved to a new location. Perhaps you should try a [search](http://www.google.com/search?q=site:mjijackson.com).
+The page you requested cannot be found. It may have been moved to a new
+location. Perhaps you should try a [search][google].
+
+[google]: http://www.google.com/search?q=site:mjijackson.com
