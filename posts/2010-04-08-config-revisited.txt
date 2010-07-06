@@ -59,6 +59,6 @@ Check out the project on [GitHub][github] for more information.
 
 [config]: /2010/02/flexible-ruby-config-objects
 [surprise]: http://en.wikipedia.org/wiki/Principle_of_least_astonishment
-[symtable]: http://github.com/mjijackson/symboltable
+[symtable]: http://mjijackson.com/symboltable
 [hash]: http://ruby-doc.org/core/classes/Hash.html
 [github]: http://github.com/mjijackson/symboltable
