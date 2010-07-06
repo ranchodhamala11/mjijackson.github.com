@@ -3,28 +3,26 @@ title: About
 ---
 
 Hi, I'm Michael Jackson (yes, the *real* Michael Jackson.) I'm a California
-native currently residing in the beautiful state of Utah. I've been designing
-and developing web sites since I was a kid, and have worked professionally in
-the field since 2004. I currently keep my [code on GitHub][github], my [random
-thoughts on Twitter][twitter], and my [bookmarks on Delicious][delicious].
+native currently living in the beautiful state of Utah. I've been designing and
+developing web sites since I was a kid, and have worked professionally in the
+field since 2004. I keep my [code on GitHub][github] and my [random thoughts on
+Twitter][twitter].
 
 I am passionate about clean, modern design and code. When it comes to the web,
 I believe that [standards](http://www.webstandards.org/) are a good thing and
-that both businesses and individuals are greatly benefitted by adherence to
-them. Instead of striving for backwards compatibility with antiquated browsers
-such as the [infamous Internet Explorer][ie], I chose to live in the present
-and target more modern, standards-compliant web browsers. My basic philosophy
-is this: people who use better browsers deserve a better experience.
+that everyone wins when businesses and developers adhere to them. Instead of
+striving for backwards compatibility with antiquated browsers such as the
+[infamous Internet Explorer][ie], I chose to live in the present and target
+more modern, standards-compliant web browsers when I write code. My basic
+philosophy is this: people who use better browsers deserve a better experience.
 
 This site is my own personal collection of links and commentary. Most of the
-time, I'm using this site as a sort of bookmarking system because just about
-everything here is something that I find interesting and would probably read
-again, but I do post original content here as well. All content is written using
-John Gruber's excellent [Markdown][markdown] tool for web writers and published
-using a combination of [Rake][rake] and [Nginx][nginx].
-
-I use the [HTML 5][html5] [doctype][doctype] on this site and it should
-[validate][w3c] as such.
+time I use it as a sort of bookmarking system because just about everything I
+post here is something that I find interesting and would probably read again.
+However, I do post original content here as well. Everything is written in
+[Markdown][markdown], published with [Rake][rake], and served using
+[HTML5][html5] on the [GitHub Pages][gh-pages] platform. Feel free to check out
+the [source][src] if you'd like.
 
 I hope you enjoy your visit to my little corner of the web. If you would like to
 get in touch, please feel free to contact me at
@@ -32,11 +30,9 @@ get in touch, please feel free to contact me at
 
 [github]: http://github.com/mjijackson
 [twitter]: http://twitter.com/mjijackson
-[delicious]: http://delicious.com/mjijackson
 [ie]: http://www.positioniseverything.net/explorer.html
 [markdown]: http://daringfireball.net/projects/markdown/
 [rake]: http://rake.rubyforge.org/
-[nginx]: http://nginx.org/
 [html5]: http://www.w3.org/TR/html5/
-[doctype]: http://www.w3.org/TR/html5/syntax.html#the-doctype
-[w3c]: http://validator.w3.org/check?uri=http%3A%2F%2Fmjijackson.com%2F
+[gh-pages]: http://pages.github.com/
+[src]: http://github.com/mjijackson/mjijackson.github.com
