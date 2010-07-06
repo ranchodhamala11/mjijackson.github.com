@@ -5,8 +5,8 @@ published: 2010-04-08 16:00
 ---
 
 Since writing about [Ruby configuration objects][config] a few months ago, I've
-done quite a bit of hacking on my original `Config` class. My main issue with
-it is that it's basically serving as a wrapper for a Hash, but it's a foreign
+done a bit of hacking on my original `Config` class. My main issue with it is
+that it's basically serving as a wrapper for a Hash, but it's a foreign
 interface. In other words, if you hand a Config object to another developer,
 he's going to have to look up the API before he can use it. But that defeats
 the purpose for writing it in the first place.
