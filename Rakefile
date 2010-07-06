@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require 'cgi'
 require 'erb'
 require 'yaml'
@@ -242,8 +244,17 @@ end
 task :default => :build
 
 desc "Build the entire site"
-task :build => [:posts, :tags, :archives, :index, :about, :not_found,
-  :feed, :sitemap, :assets]
+task :build => %w<
+  posts
+  tags
+  archives
+  index
+  about
+  not_found
+  feed
+  sitemap
+  assets
+>.map {|n| n.to_sym }
 
 desc "Build all posts"
 task :posts => POST_FILES
