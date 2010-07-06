@@ -26,6 +26,34 @@
     <div id="body">
     <div class="post">
     <div class="post-meta">
+        <h2>Fullscreen MacRuby</h2>
+        <div class="post-date">Tuesday, 06 Jul 2010</div>
+        <div class="post-tags">
+        <a title="All posts tagged ruby" href="/tag/ruby">#ruby</a> <a title="All posts tagged cocoa" href="/tag/cocoa">#cocoa</a> <a title="All posts tagged macruby" href="/tag/macruby">#macruby</a>
+        </div>
+    </div>
+    <div class="post-body">
+    <p>While researching a way to create fullscreen apps in Cocoa, I came across <a href="http://cocoawithlove.com/2009/08/animating-window-to-fullscreen-on-mac.html">an
+article</a> by Matt Gallagher written about a year ago that described the
+process in detail. I&rsquo;ve been experimenting a lot lately with <a href="http://www.macruby.org/">MacRuby</a>,
+Apple&rsquo;s Ruby implementation built on top of Objective-C and <a href="http://llvm.org/">LLVM</a>, and I
+decided to port Matt&rsquo;s code to use Ruby instead of Objective-C.</p>
+
+<p>The result is <a href="http://github.com/mjijackson/Fullscreen">Fullscreen</a>, a small sample app that demonstrates how to
+create a fullscreen window in MacRuby. To run the app, you need to have the
+latest MacRuby (0.6) installed.</p>
+
+<p>Enjoy!</p>
+
+        <div class="post-foot">
+            <a href="/2010/07/fullscreen-macruby" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
+            
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+<div class="post">
+    <div class="post-meta">
         <h2>Ruby Config Objects Revisited</h2>
         <div class="post-date">Thursday, 08 Apr 2010</div>
         <div class="post-tags">
@@ -34,8 +62,8 @@
     </div>
     <div class="post-body">
     <p>Since writing about <a href="/2010/02/flexible-ruby-config-objects">Ruby configuration objects</a> a few months ago, I&rsquo;ve
-done quite a bit of hacking on my original <code>Config</code> class. My main issue with
-it is that it&rsquo;s basically serving as a wrapper for a Hash, but it&rsquo;s a foreign
+done a bit of hacking on my original <code>Config</code> class. My main issue with it is
+that it&rsquo;s basically serving as a wrapper for a Hash, but it&rsquo;s a foreign
 interface. In other words, if you hand a Config object to another developer,
 he&rsquo;s going to have to look up the API before he can use it. But that defeats
 the purpose for writing it in the first place.</p>
@@ -50,7 +78,7 @@ iterate over them, inspect them easily, and merge and compare them with other
 objects. Obviously <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a> provides lots of built-in methods for doing
 this sort of thing, but it&rsquo;s not as flexible as I&rsquo;d like it to be.</p>
 
-<p>The solution? <a href="http://github.com/mjijackson/symboltable">SymbolTable</a>.</p>
+<p>The solution? <a href="http://mjijackson.com/symboltable">SymbolTable</a>.</p>
 
 <p>SymbolTable is a much more generalized version of my original Config object
 that actually subclasses <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a>. With all of the nice methods of Hash
@@ -436,34 +464,6 @@ to the same message over and over again every year.</p></blockquote>
             <a href="/2009/07/take-back-the-beep" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
             
             <a href="http://pogue.blogs.nytimes.com/2009/07/30/the-mandatory-15-second-voicemail-instructions/" class="jump" title="Jump to the original URL referenced in this post">JUMP TO THIS URL</a>
-            
-        </div>
-    </div>
-    <div class="clear"></div>
-</div>
-<div class="post">
-    <div class="post-meta">
-        <h2>Misusing Quotes</h2>
-        <div class="post-date">Monday, 27 Jul 2009</div>
-        <div class="post-tags">
-        <a title="All posts tagged syntax" href="/tag/syntax">#syntax</a>
-        </div>
-    </div>
-    <div class="post-body">
-    <p>Seth Godin:</p>
-
-<blockquote><p>When I get a manuscript or see a sign that misuses its and it&rsquo;s and
-<a href="http://www.unnecessaryquotes.com/">quotes</a>, I immediately assume that the person who created it is stupid.</p>
-
-<p>I understand that this is a mistake on my part. They&rsquo;re not necessarily
-totally stupid, they&rsquo;re just stupid about apostrophes.</p></blockquote>
-
-<p>This is something I&rsquo;ve always been annoyed by. It really diminishes the credibility of the organization behind the message.</p>
-
-        <div class="post-foot">
-            <a href="/2009/07/misusing-quotes" class="permalink" title="Permanent URL of this post">PERMANENT URL</a>
-            
-            <a href="http://sethgodin.typepad.com/seths_blog/2009/07/am-i-the-only-one-distracted-by-apostrophes-and-weird-quoting.html" class="jump" title="Jump to the original URL referenced in this post">JUMP TO THIS URL</a>
             
         </div>
     </div>

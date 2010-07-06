@@ -1,0 +1,22 @@
+---
+title: Fullscreen MacRuby
+tags: [ruby, cocoa, macruby]
+published: 2010-07-06 18:00
+---
+
+While researching a way to create fullscreen apps in Cocoa, I came across [an
+article][cwl] by Matt Gallagher written about a year ago that described the
+process in detail. I've been experimenting a lot lately with [MacRuby][macruby],
+Apple's Ruby implementation built on top of Objective-C and [LLVM][llvm], and I
+decided to port Matt's code to use Ruby instead of Objective-C.
+
+The result is [Fullscreen][fs], a small sample app that demonstrates how to
+create a fullscreen window in MacRuby. To run the app, you need to have the
+latest MacRuby (0.6) installed.
+
+Enjoy!
+
+[cwl]: http://cocoawithlove.com/2009/08/animating-window-to-fullscreen-on-mac.html
+[macruby]: http://www.macruby.org/
+[llvm]: http://llvm.org/
+[fs]: http://github.com/mjijackson/Fullscreen

@@ -5,8 +5,33 @@
   <link rel="self" type="application/atom+xml" href="http://mjijackson.com/index.xml"/>
   <link rel="alternate" type="text/html" href="http://mjijackson.com/"/>
   <id>http://mjijackson.com/</id>
-  <updated>2010-04-08T16:00:00-06:00</updated>
+  <updated>2010-07-06T18:00:00-06:00</updated>
   <rights>Copyright &#169; 2008-2010, Michael Jackson</rights>
+  <entry>
+    <title>Fullscreen MacRuby</title>
+    <id>tag:mjijackson.com,2010-07-06:/2010/07/fullscreen-macruby</id>
+    <link rel="alternate" type="text/html" href="/2010/07/fullscreen-macruby"/>
+    <published>2010-07-06T18:00:00-06:00</published>
+    <updated>2010-07-06T18:00:00-06:00</updated>
+    <author>
+      <name>Michael Jackson</name>
+      <uri>http://mjijackson.com/</uri>
+    </author>
+    <content type="html">
+      <![CDATA[<p>While researching a way to create fullscreen apps in Cocoa, I came across <a href="http://cocoawithlove.com/2009/08/animating-window-to-fullscreen-on-mac.html">an
+article</a> by Matt Gallagher written about a year ago that described the
+process in detail. I&rsquo;ve been experimenting a lot lately with <a href="http://www.macruby.org/">MacRuby</a>,
+Apple&rsquo;s Ruby implementation built on top of Objective-C and <a href="http://llvm.org/">LLVM</a>, and I
+decided to port Matt&rsquo;s code to use Ruby instead of Objective-C.</p>
+
+<p>The result is <a href="http://github.com/mjijackson/Fullscreen">Fullscreen</a>, a small sample app that demonstrates how to
+create a fullscreen window in MacRuby. To run the app, you need to have the
+latest MacRuby (0.6) installed.</p>
+
+<p>Enjoy!</p>
+]]>
+    </content>
+  </entry>
   <entry>
     <title>Ruby Config Objects Revisited</title>
     <id>tag:mjijackson.com,2010-04-08:/2010/04/config-revisited</id>
@@ -19,8 +44,8 @@
     </author>
     <content type="html">
       <![CDATA[<p>Since writing about <a href="/2010/02/flexible-ruby-config-objects">Ruby configuration objects</a> a few months ago, I&rsquo;ve
-done quite a bit of hacking on my original <code>Config</code> class. My main issue with
-it is that it&rsquo;s basically serving as a wrapper for a Hash, but it&rsquo;s a foreign
+done a bit of hacking on my original <code>Config</code> class. My main issue with it is
+that it&rsquo;s basically serving as a wrapper for a Hash, but it&rsquo;s a foreign
 interface. In other words, if you hand a Config object to another developer,
 he&rsquo;s going to have to look up the API before he can use it. But that defeats
 the purpose for writing it in the first place.</p>
@@ -35,7 +60,7 @@ iterate over them, inspect them easily, and merge and compare them with other
 objects. Obviously <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a> provides lots of built-in methods for doing
 this sort of thing, but it&rsquo;s not as flexible as I&rsquo;d like it to be.</p>
 
-<p>The solution? <a href="http://github.com/mjijackson/symboltable">SymbolTable</a>.</p>
+<p>The solution? <a href="http://mjijackson.com/symboltable">SymbolTable</a>.</p>
 
 <p>SymbolTable is a much more generalized version of my original Config object
 that actually subclasses <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a>. With all of the nice methods of Hash
@@ -387,29 +412,6 @@ to the same message over and over again every year.</p></blockquote>
 
 <p>All it takes is one person to stand up in a meeting and say, &ldquo;Why in the world do we still have those silly messages whenever someone calls one of our customers?&rdquo; (Via <a href="http://daringfireball.net/linked/2009/07/30/pogue-beep">John Gruber</a>.)</p>
 <p>[<a href="/2009/07/take-back-the-beep" title="Permalink">Permalink</a>]</p>]]>
-    </content>
-  </entry>
-  <entry>
-    <title>Misusing Quotes</title>
-    <id>tag:mjijackson.com,2009-07-27:/2009/07/misusing-quotes</id>
-    <link rel="alternate" type="text/html" href="http://sethgodin.typepad.com/seths_blog/2009/07/am-i-the-only-one-distracted-by-apostrophes-and-weird-quoting.html"/>
-    <published>2009-07-27T10:40:00-06:00</published>
-    <updated>2009-07-27T10:40:00-06:00</updated>
-    <author>
-      <name>Michael J. I. Jackson</name>
-      <uri>http://mjijackson.com/</uri>
-    </author>
-    <content type="html">
-      <![CDATA[<p>Seth Godin:</p>
-
-<blockquote><p>When I get a manuscript or see a sign that misuses its and it&rsquo;s and
-<a href="http://www.unnecessaryquotes.com/">quotes</a>, I immediately assume that the person who created it is stupid.</p>
-
-<p>I understand that this is a mistake on my part. They&rsquo;re not necessarily
-totally stupid, they&rsquo;re just stupid about apostrophes.</p></blockquote>
-
-<p>This is something I&rsquo;ve always been annoyed by. It really diminishes the credibility of the organization behind the message.</p>
-<p>[<a href="/2009/07/misusing-quotes" title="Permalink">Permalink</a>]</p>]]>
     </content>
   </entry>
 </feed>

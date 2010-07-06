@@ -34,8 +34,8 @@
     </div>
     <div class="post-body">
     <p>Since writing about <a href="/2010/02/flexible-ruby-config-objects">Ruby configuration objects</a> a few months ago, I&rsquo;ve
-done quite a bit of hacking on my original <code>Config</code> class. My main issue with
-it is that it&rsquo;s basically serving as a wrapper for a Hash, but it&rsquo;s a foreign
+done a bit of hacking on my original <code>Config</code> class. My main issue with it is
+that it&rsquo;s basically serving as a wrapper for a Hash, but it&rsquo;s a foreign
 interface. In other words, if you hand a Config object to another developer,
 he&rsquo;s going to have to look up the API before he can use it. But that defeats
 the purpose for writing it in the first place.</p>
@@ -50,7 +50,7 @@ iterate over them, inspect them easily, and merge and compare them with other
 objects. Obviously <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a> provides lots of built-in methods for doing
 this sort of thing, but it&rsquo;s not as flexible as I&rsquo;d like it to be.</p>
 
-<p>The solution? <a href="http://github.com/mjijackson/symboltable">SymbolTable</a>.</p>
+<p>The solution? <a href="http://mjijackson.com/symboltable">SymbolTable</a>.</p>
 
 <p>SymbolTable is a much more generalized version of my original Config object
 that actually subclasses <a href="http://ruby-doc.org/core/classes/Hash.html">Hash</a>. With all of the nice methods of Hash

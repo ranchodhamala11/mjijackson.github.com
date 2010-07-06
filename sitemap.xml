@@ -201,6 +201,14 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>http://mjijackson.com/tag/cocoa</loc>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://mjijackson.com/tag/macruby</loc>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>http://mjijackson.com/2008/01</loc>
     <priority>0.5</priority>
   </url>
@@ -254,6 +262,10 @@
   </url>
   <url>
     <loc>http://mjijackson.com/2010/04</loc>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://mjijackson.com/2010/07</loc>
     <priority>0.5</priority>
   </url>
   <url>
