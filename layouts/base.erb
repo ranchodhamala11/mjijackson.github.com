@@ -19,13 +19,15 @@
     <ul id="nav">
         <% nav = :home if nav.nil? || nav.empty? %>
         <li class="nav-title"><a <%= 'class="selected" ' if nav == :home %>href="/">MJIJACKSON</a></li>
-        <li class="nav-feed"><a href="/index.xml" title="Subscribe to the feed">FEED</a></li>
+        <li class="nav-feed"><a href="/index.xml" title="Subscribe to the feed">ATOM</a></li>
         <li class="nav-code"><a href="http://github.com/mjijackson">CODE</a></li>
         <li class="nav-about"><a <%= 'class="selected" ' if nav == :about %>href="/about">ABOUT</a></li>
     </ul>
+
     <div id="body">
     <%= result %>
     </div>
+
     <div id="foot">
         <p>Copyright &copy; 2008&mdash;<%=Time.now.year%> Michael Jackson. &nbsp; <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> <a href="/index.xml" title="Subscribe to the feed">ATOM</a></p>
     </div>
