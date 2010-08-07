@@ -245,17 +245,7 @@ end
 task :default => :build
 
 desc "Build the entire site"
-task :build => %w<
-  posts
-  tags
-  archives
-  index
-  about
-  not_found
-  feed
-  sitemap
-  assets
->.map {|n| n.to_sym }
+task :build => [:posts, :tags, :archives, :index, :about, :not_found, :feed, :sitemap, :assets]
 
 desc "Build all posts"
 task :posts => POST_FILES
