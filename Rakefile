@@ -1,31 +1,34 @@
 # encoding: UTF-8
 
-require 'cgi'
-require 'erb'
 require 'yaml'
 require 'time'
+require 'cgi'
+require 'erb'
 require 'builder'
 require 'rdiscount'
+require 'tilt'
 
-SOURCE = '.'
-PUBLIC = 'public'
+SOURCE = File.expand_path('..', __FILE__)
+
+PUBLIC = File.expand_path('../public', __FILE__)
 directory PUBLIC
+
 TAG = File.join(PUBLIC, 'tag')
 directory TAG
 
-# a list of static assets
+# A list of static assets.
 ASSETS = %w< css etc CNAME README robots.txt >.map {|f| File.join(SOURCE, f) }
-# a map of all URL's to their respective priorities
+# A map of all URL's to their respective priorities.
 SITEMAP = { '/' => 1.0, '/about' => 0.5 }
-# a map of all tags to the posts that contain that tag
+# A map of all tags to the posts that contain that tag.
 TAG_POSTS = {}
-# a map of all years and months to the posts that were published in that time
+# A map of all years and months to the posts that were published in that time.
 ARCHIVE = {}
-# a list of the names of all individual post files
+# A list of the names of all individual post files.
 POST_FILES = []
-# a list of the names of all tag/* files
+# A list of the names of all tag/* files.
 TAG_FILES = []
-# a list of the names of all archive files (posts by month and year)
+# A list of the names of all archive files (posts by month and year).
 ARCHIVE_FILES = []
 
 class Page
@@ -49,7 +52,7 @@ class Page
   attr_reader :path
 
   def initialize(path)
-    raise ArgumentError, "cannot find file #{path}" unless File.exist?(path)
+    raise ArgumentError, "Cannot find file: #{path}" unless File.exist?(path)
     @path = path
   end
 
@@ -61,14 +64,13 @@ class Page
         YAML.load($1).each do |key, value|
           @data[key.to_sym] = value
         end
-        # set default author
         @data[:author] ||= 'Michael Jackson'
-        # set timestamps
+        # Set timestamps.
         @data[:published] = @data[:published] ? Time.parse(@data[:published]) : Time.now
         @data[:updated] = @data[:updated] ? Time.parse(@data[:updated]) : @data[:published]
-        # default to no tags unless specified
+        # Default to no tags unless specified.
         @data[:tags] ||= []
-        # body is the remainder of the file
+        # Body is the remainder of the file.
         @data[:body] = $'
       end
     end
@@ -92,54 +94,48 @@ class Page
     end
   end
 
-  # the original file extension
   def ext
     @ext ||= File.extname(@path)
   end
 
-  # the file name (or basename - extension)
   def name
     @name ||= File.basename(@path, ext)
   end
 
-  # the mtime of the file
   def mtime
     @mtime ||= File.mtime(@path)
   end
 
-  # the year this page was published as a string
   def year
     published.year.to_s
   end
 
-  # the month this page was published as a string
   def month
-    sprintf("%02d", published.month)
+    '%02d' % published.month
   end
 
-  # the day this page was published as a string
   def day
-    sprintf("%02d", published.day)
+    '%02d' % published.day
   end
 
   def to_html
     @html ||= Markdown.new(body, :smart).to_html
   end
 
-  # extract the first paragraph with more than 7 words
+  # Extract the first paragraph with more than 7 words.
   def excerpt
     text = ''
     blocks = to_html.scan(/(<(blockquote|p)>.*?<\/(blockquote|p)>)/m)
-    blocks.each do |block|
-      text << block[0]
-      text << '</blockquote>' unless block[1] == 'p' || block[2] == 'blockquote'
-      return text if block[0].split(' ').length > 7
+    blocks.each do |b|
+      text << b[0]
+      text << '</blockquote>' unless b[1] == 'p' || b[2] == 'blockquote'
+      return text if b[0].split(' ').length > 7
     end
     blocks.first[0]
   end
 
   def to_s
-    "<#{self.class}:#{self.object_id} @name=#{name}>"
+    '<%s:%s @name=%s>' % [self.class, object_id, name]
   end
 end
 
@@ -150,29 +146,30 @@ class Post < Page
     all.sort_by {|post| post.published }.last(n)
   end
 
-  # need to override this method because post files are named with the date
+  # Need to override this method because post files are named with the date.
   def name
     @name ||= File.basename(@path, ext).sub(/^\d{4}-\d{2}-\d{2}-/, '')
   end
 
-  # the permanent link to this post, will be in the form of /:year/:month/:name
+  # The permanent link to this post, will be in the form of /:year/:month/:name.
   def permalink
-    @permalink ||= '/' + [year, month, name].join('/')
+    '/%s/%s/%s' % [year, month, name]
   end
 
-  # the alternate url for this post
+  # The alternate URL for this post. Will be the permalink if no alternate URL
+  # is explicitly given.
   def alt
     @data[:alt] || permalink
   end
 
-  # if this post is an original, the permalink will be the same as the alternate url
+  # If this post is an original, the permalink will be the same as the
+  # alternate URL.
   def is_original?
     !@data.has_key?(:alt)
   end
 
-  # the atom id of this post
   def atom_id
-    @id ||= "tag:mjijackson.com," + published.strftime('%Y-%m-%d') + ":" + permalink
+    'tag:mjijackson.com,%s:%s' % [published.strftime('%Y-%m-%d'), permalink]
   end
 end
 
@@ -183,11 +180,13 @@ Post.all.each do |post|
   directory dir unless Rake::Task.task_defined?(dir)
 
   t = file File.join(dir, post.name + '.html') => dir do |t|
-    make_post(post, t.name)
+    posts = [ post ]
+    title = post.title
+    make_file(t.name, eval_layouts([:posts, :base], binding))
   end
   POST_FILES << t.name
 
-  # make a plain text version of posts as well
+  # Make a plain text version of posts as well.
   t = file File.join(dir, post.name + '.txt') => dir do |t|
     cp post.path, t.name
   end
@@ -207,10 +206,12 @@ end
 
 TAG_POSTS.each do |tag, posts|
   t = file File.join(TAG, CGI.escape(tag) + '.html') => TAG do |t|
-    make_tag(posts, t.name, tag)
+    posts = posts.sort_by {|post| post.published }.reverse
+    title = 'Posts tagged &#8220;%s&#8221;' % tag
+    make_file(t.name, eval_layouts([:excerpts, :tag, :base], binding))
   end
   TAG_FILES << t.name
-  SITEMAP['/tag/' + CGI.escape(tag)] = 0.5
+  SITEMAP['/tag/%s' % CGI.escape(tag)] = 0.5
 end
 
 ARCHIVE.each do |year, months|
@@ -229,17 +230,17 @@ ARCHIVE.each do |year, months|
       make_archive(posts, t.name, year, month)
     end
     ARCHIVE_FILES << t.name
-    SITEMAP["/#{year}/#{month}"] = 0.5
+    SITEMAP['/%s/%s' % [year, month]] = 0.5
   end
 
   t = file File.join(year_dir, 'index.html') => year_dir do |t|
     make_archive(year_posts, t.name, year)
   end
   ARCHIVE_FILES << t.name
-  SITEMAP["/#{year}"] = 0.5
+  SITEMAP['/%s' % year] = 0.5
 end
 
-## Task Definitions ###########################################################
+## Tasks #######################################################################
 
 task :default => :build
 
@@ -267,7 +268,7 @@ task :archives => ARCHIVE_FILES
 
 desc "Build the index"
 task :index => PUBLIC do
-  posts = Post.last(10).reverse
+  posts = Post.last(4).reverse
   make_file(File.join(PUBLIC, 'index.html'), eval_layouts([:posts, :base], binding))
 end
 
@@ -332,28 +333,15 @@ def make_file(file, contents)
   File.open(file, 'w') {|f| f.write contents }
 end
 
-def make_post(post, outfile)
-  posts = [ post ]
-  title = post.title
-  make_file(outfile, eval_layouts([:posts, :base], binding))
-end
-
-def make_tag(posts, outfile, tag)
-  posts = posts.sort_by {|post| post.published }.reverse
-  title = "Posts tagged &#8220;#{tag}&#8221;"
-  make_file(outfile, eval_layouts([:'posts-excerpts', :tag, :base], binding))
-end
-
 def make_archive(posts, outfile, year, month=nil)
   posts = posts.sort_by {|post| post.published }.reverse
   sig = (month ? month_name(month) + ' ' : '') + year
-  title = "Posts published in #{sig}"
-  make_file(outfile, eval_layouts([:'posts-excerpts', :archive, :base], binding))
+  title = 'Posts published in %s' % sig
+  make_file(outfile, eval_layouts([:excerpts, :archive, :base], binding))
 end
 
 def month_name(month)
-  {
-    '01' => 'January',
+  { '01' => 'January',
     '02' => 'February',
     '03' => 'March',
     '04' => 'April',
@@ -365,5 +353,5 @@ def month_name(month)
     '10' => 'October',
     '11' => 'November',
     '12' => 'December'
-  }[month]
+  }[month.to_s]
 end
