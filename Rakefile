@@ -16,8 +16,8 @@ directory PUBLIC
 TAG = File.join(PUBLIC, 'tag')
 directory TAG
 
-# A list of static assets.
-ASSETS = %w< css etc CNAME README robots.txt >.map {|f| File.join(SOURCE, f) }
+# A list of static files that should be copied directly.
+ASSETS = %w< assets etc CNAME README robots.txt >.map {|f| File.join(SOURCE, f) }
 # A map of all URL's to their respective priorities.
 SITEMAP = { '/' => 1.0, '/about' => 0.5 }
 # A map of all tags to the posts that contain that tag.
