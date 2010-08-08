@@ -61,4 +61,5 @@ Check out the project on [GitHub][github] for more information.
 [surprise]: http://en.wikipedia.org/wiki/Principle_of_least_astonishment
 [symtable]: http://mjijackson.com/symboltable
 [hash]: http://ruby-doc.org/core/classes/Hash.html
+[rubygems]: http://rubygems.org/
 [github]: http://github.com/mjijackson/symboltable
