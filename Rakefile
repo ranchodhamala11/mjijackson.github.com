@@ -17,19 +17,13 @@ TAG = File.join(PUBLIC, 'tag')
 directory TAG
 
 # A list of static files that should be copied directly.
-ASSETS = %w< assets etc CNAME README robots.txt >.map {|f| File.join(SOURCE, f) }
+ASSETS = %w< assets etc CNAME favicon.ico robots.txt README >
 # A map of all URL's to their respective priorities.
 SITEMAP = { '/' => 1.0, '/about' => 0.5 }
 # A map of all tags to the posts that contain that tag.
 TAG_POSTS = {}
 # A map of all years and months to the posts that were published in that time.
 ARCHIVE = {}
-# A list of the names of all individual post files.
-POST_FILES = []
-# A list of the names of all tag/* files.
-TAG_FILES = []
-# A list of the names of all archive files (posts by month and year).
-ARCHIVE_FILES = []
 
 class Page
   @dir = File.join(SOURCE, 'pages')
@@ -173,7 +167,19 @@ class Post < Page
   end
 end
 
-## Preprocessor ###############################################################
+## Preprocessor ################################################################
+
+ASSET_FILES = []
+POST_FILES = []
+TAG_FILES = []
+ARCHIVE_FILES = []
+
+ASSETS.each do |asset|
+  t = file File.join(PUBLIC, asset) => PUBLIC do |t|
+    cp_r File.join(SOURCE, asset), t.name
+  end
+  ASSET_FILES << t.name
+end
 
 Post.all.each do |post|
   dir = File.join(PUBLIC, post.year, post.month)
@@ -245,7 +251,10 @@ end
 task :default => :build
 
 desc "Build the entire site"
-task :build => [:posts, :tags, :archives, :index, :about, :not_found, :feed, :sitemap, :assets]
+task :build => [:assets, :posts, :tags, :archives, :index, :about, :not_found, :feed, :sitemap]
+
+desc "Copy all static assets"
+task :assets => ASSET_FILES
 
 desc "Build all posts"
 task :posts => POST_FILES
@@ -295,14 +304,17 @@ task :sitemap => PUBLIC do
   make_file(File.join(PUBLIC, 'sitemap.xml'), xml.target!)
 end
 
-desc "Copy all static assets"
-task :assets => PUBLIC do
-  ASSETS.each do |file|
-    cp_r file, PUBLIC
+desc "Update the master branch"
+task :update => :build do
+  dir = File.basename(PUBLIC)
+  sh 'git checkout master'
+  Dir['*'].each do |file|
+    rm_rf file if File.directory?(file) && File.basename(file) != dir
   end
+  sh 'mv %s/* . && rm -rf %s' % [dir, dir]
 end
 
-## Utility Functions ##########################################################
+## Utilities ###################################################################
 
 def layout(name, ext="erb")
   layout_file = File.join(SOURCE, 'layouts', "#{name}.#{ext}")
