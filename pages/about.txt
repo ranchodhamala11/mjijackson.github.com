@@ -35,4 +35,4 @@ get in touch, please feel free to contact me at
 [rake]: http://rake.rubyforge.org/
 [html5]: http://www.w3.org/TR/html5/
 [gh-pages]: http://pages.github.com/
-[src]: http://github.com/mjijackson/mjijackson.github.com
+[src]: http://github.com/mjijackson/mjijackson.github.com/tree/source
